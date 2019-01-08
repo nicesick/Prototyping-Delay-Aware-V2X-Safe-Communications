@@ -1,0 +1,87 @@
+﻿01-08-2019
+
+linux compilation for 802.11p
+
+*. Constraint
+	타겟 보드와 같은 네트워크 상에 연결되어 있지 않을 시,
+	타겟 보드에 접속불가 에러 발생
+
+0. Preparation
+- host machine : 
+	
+- board :
+	- grep . /etc/issue*
+	PRETTY_NAME="Debian GNU/Linux 9 (stretch)"
+	NAME="Debian GNU/Linux"
+	VERSION_ID="9"
+	VERSION="9 (stretch)"
+	ID=debian
+	HOME_URL="https://www.debian.org/"
+	SUPPORT_URL="https://www.debian.org/support"
+	BUG_REPORT_URL="https://bugs.debian.org/"	
+
+	- uname -r
+	4.9.0-rc8-rt1+
+
+	- sudo iwconfig
+	enp1s0    no wireless extensions.
+
+	enp2s0    no wireless extensions.
+
+	wlp4s0    IEEE 802.11  ESSID:off/any
+          	Mode:Managed  Access Point: Not-Associated   Tx-Power=0 dBm
+          	Retry short limit:7   RTS thr:off   Fragment thr:off
+          	Encryption key:off
+          	Power Management:off
+
+	lo        no wireless extensions.
+
+	enp3s0    no wireless extensions.
+
+팩트
+
+1. 현재 보드 안에 커널 2가지 종류가 존재한다.
+2. 원래 버전 , 추가된 버전
+3. 원래 버전(board default version) : 보드의 아키텍처에 맞는 기본 설정 파일
+	-> 이 기본 설정 파일을 호스트 머신으로 가지고 와야함
+	-> scp 명령어를 이용하여 전송
+4. 추가된 버전 : 802.11p 패치와 real-time kernel 모드가 적용된 설정 파일
+	-> 손 댈 필요 없음
+
+5. 만들어야 할 세번 째 커널 : board default 에 802.11p 패치가 적용된 설정 파일
+
+순서
+
+1. clone linux source
+- git clone https://github.com/
+
+2. 리눅스 버전 roll back : 4.9 버전으로
+- git checkout v4.9-rc8
+
+3. 리눅스 카피
+- cp linux linux_cpy
+
+4. 보드의 config 파일(config...-amd64) 가져오기
+- 호스트 머신에서 실행
+- scp user@IPaddress:/boot/config...-amd64 /home/user/linux/.config
+
+5. copy 80211p_v4.9.patch to linux folder
+- mv 80211p_v4.9.patch /home/user/linux
+
+6. patch the file to linux folder
+- cat 80211p_4.9.patch | patch -p1
+- 절대 에러가 없어야 함
+
+7. make configuration file
+- make menuconfig
+
+- 두 가지 수정사항 적용
+- in network support, check OCB
+- in kernel hacking, check bug reporting
+
+- 세이브 후 exit
+
+8. htop 로 코어 갯수 확인 후, -j(코어 x2)
+- make -j16
+
+=========================================================
