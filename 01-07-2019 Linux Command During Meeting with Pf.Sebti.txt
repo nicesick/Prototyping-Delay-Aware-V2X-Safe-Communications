@@ -1,0 +1,33 @@
+sudo ifconfig : wifi0
+
+================================================== 현재 이 명령어 사용 못함?
+sudo iw phy 
+sudo iw dev
+sudo iw dev wlan0 info
+sudo iwconfig
+
+==================================================
+ssh user@ipaddress
+pass
+hostname -I
+copy keygen and paste to host machine
+
+rootpass
+
+export WLAN=wlp4s0
+sudo iw phy
+
+preempty_test
+
+interface
+- OCB
+
+ip link set WLAN down
+iw dev WLAN set type ocb
+ip link set WLAN up
+iw dev WLAN ocb join 5910 10MHZ
+iw dev WLAN info
+
+iw dev WLAN ocb leave
+
+debian shell window 10
