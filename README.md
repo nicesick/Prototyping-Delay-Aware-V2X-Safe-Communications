@@ -4,6 +4,7 @@
  - Jihun Lim, Chung-Ang University, South Korea
  - Hyunjae Lee, Chung-Ang University, South Korea
 
+
 01-07-2019
 ==========
 01-07-2019 : Research Lab began
@@ -12,6 +13,7 @@
 ----------------------------------------------------------
 01-07-2019 : Configurations setting began
 -----------------------------------------
+
 
 01-08-2019
 ==========
