@@ -53,7 +53,7 @@
 * STEPS *
 
 1. clone linux source
-- git clone https://github.com/
+- git clone https://github.com/torvalds/linux
 
 2. roll back Linux version to 4.9 
 - git checkout v4.9-rc8
@@ -75,9 +75,11 @@
 7. make configuration file
 - make menuconfig
 
+ *curses.h error solution : sudo apt-get install libncurses5-dev libcursesw5-dev
+
  : two features are revised
- & in network support, check OCB
- & in kernel hacking, check bug reporting
+ & in network support, select mac option and check OCB
+ & in kernel hacking, uncheck bug reporting
  & save and exit
 
 8. check out the number of cores in the machine by 'htop'
