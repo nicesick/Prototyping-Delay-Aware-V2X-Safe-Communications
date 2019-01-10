@@ -60,3 +60,16 @@ iw dev WLAN ocb leave
 11. debian shell window 10
 - window 환경에서 linux bash 를 사용 할 수 있게 구축
 
+================================================== 
+
+du -h 해당폴더
+- 해당폴더 안에 있는 파일들의 크기를 측정해 출력해준다.
+
+tar czf kernel.tgz *
+- 현재폴더 안에 있는 모든 파일 및 폴더를 kernel.tgz 라는 이름으로 압축해 준다.
+
+tar -xzf kernel.tgz
+- kernel.tgz 라는 압축된 파일을 압축해제 해준다.
+
+htop
+- 현재 호스트 머신의 하드웨어 정보를 출력해준다.
