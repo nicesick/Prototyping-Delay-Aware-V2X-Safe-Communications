@@ -1,8 +1,9 @@
 # Research-Lab
 
-<Member>
- - Jihun Lim, Chung-Ang University, South Korea
+Members
  - Hyunjae Lee, Chung-Ang University, South Korea
+ - Jihun Lim, Chung-Ang University, South Korea
+ 
 
 ### 01-07-2019
 #### 1. Research Lab began.
