@@ -19,3 +19,6 @@ Advisors
 ### 01-09-2019
 #### 1. Practicing making a new kernal image => Failed (we used Ubuntu on Window).
 #### 2. Installing Linux on our PCs.
+
+### 01-10-2019
+#### 1. Transferring created kernel image, selected modules and firmwares to the board.
