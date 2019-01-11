@@ -6,7 +6,15 @@
 0. Preparation
 
 - host machine : 
-	
+	CPU Model name: Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz
+	CPU(s) : 4
+	Architecture : x86_64
+	RAM : 8GiB System Memory
+		4GiB DIMM DDR3 Synchronous 1333 MHz
+		4GiB DIMM DDR3 Synchronous 1333 MHz
+	HardDisk : 500GB ST500DM002-1BD14
+	OS : Linux msdebian-pc 4.9.0-8-amd64 #1 SMP Debian 4.9.130-2(2018-10-27) x86_64 GNU/Linux
+
 - board :
 	- grep . /etc/issue*
 	PRETTY_NAME="Debian GNU/Linux 9 (stretch)"
