@@ -9,4 +9,4 @@ Advisors
  - (Prof) Rafik Zitouni (rafik.zitouni@ece.fr)
 
 
-![propal](https://github.com/nicesick/Research-Lab/blob/master/documents/propal_1.pdf)
+![propal](C:/Users/recherche/Documents/GitHub/Research-Lab/resources/propal.png)
