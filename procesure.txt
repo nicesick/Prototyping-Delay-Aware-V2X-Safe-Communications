@@ -146,3 +146,29 @@
 - 명령어를 /boot 에서 실행해야 할 지, /lib 에서 실행해야 할 지 모름
 
 =================================================================================
+1. preparing the presentation for meeting
+
+2. linux wireless stack 어떻게 이루어져 있나 이해하기
+3. using 802.11p patch files, 스택이 어떻게 바뀌었나 판단
+
+4-1. Comparasion tool : 
+	ping, ping one way
+	Iperf
+
+이 툴을 이용해서 
+	Latency			(시작 : 처음 실행했을 때, 끝 : 시스템에 의해 erect 되었을 때)
+	Bandwidth 평가하기
+
+4-2. 직접 C 코드를 작성하여 프로그램을 만들고 
+	Latency			
+	Bandwidth	
+	평가하기
+
+5. Sci-Hub : IEEE 논문 받기
+
+6. 알아봐야 할 것
+- ad-hoc network
+- routine protocol(= GeoNetworking)
+- 802.11p structure
+
+=================================================================================
