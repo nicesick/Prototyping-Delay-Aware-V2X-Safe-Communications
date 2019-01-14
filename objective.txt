@@ -1,6 +1,28 @@
-﻿802.11p 프로토콜 point to point network communication 프로젝트
+﻿802.11p point to point network communication Project
 
- Goals,
+Objectives
+
+0. Understanding the network knowledge for project
+
+1. Setting up the environment for specific hardware platforms
+	- Pf.Sebti already installed the kernel* in boards
+	- * original kernel + 802.11p patch + real-time patch
+	- from now on, calling 802.11p real-time kernel
+
+	- We need to install new kernel** in boards
+	- ** original kernel + 802.11p patch
+	- from now on, calling 802.11p volunteer kernel
+
+2. Making self communication program on a board
+	- we need to find the way to communicate in specific hardware platforms
+	- evaluation : we need to evaluate the speed of sending message in each environment***
+	- *** 802.11p real-time kernel, 802.11p volunteer kernel
+
+=================================================================================
+
+802.11p 프로토콜 point to point network communication 프로젝트
+
+Goals,
 
 1. 한 보드에서 self loop communication 구현
 1-1. 사전설명
