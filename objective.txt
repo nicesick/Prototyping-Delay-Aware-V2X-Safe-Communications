@@ -5,18 +5,24 @@ Objectives
 0. Understanding the network knowledge for project
 
 1. Setting up the environment for specific hardware platforms
-	- Pf.Sebti already installed the kernel* in boards
+	- Pf.Sebti already installed the kernel* on the board
 	- * original kernel + 802.11p patch + real-time patch
 	- from now on, calling 802.11p real-time kernel
 
-	- We need to install new kernel** in boards
+	- We need to install new kernel** on the board
 	- ** original kernel + 802.11p patch
 	- from now on, calling 802.11p volunteer kernel
 
-2. Making self communication program on a board
-	- we need to find the way to communicate in specific hardware platforms
-	- evaluation : we need to evaluate the speed of sending message in each environment***
+2. Making a self communication program on the board
+	- We need to find the way to communicate between specific hardware platforms
+	- We need to evaluate the speed of sending message in each environment***
 	- *** 802.11p real-time kernel, 802.11p volunteer kernel
+
+3. Understanding Wireless Network stack and how 802.11p patch changed the kernel. 
+
+4. Evaluation
+	- Latency (when it is excuted - when it is elected by OS) 
+	- Latency (when the server sends a msg - when the lister decodes the msg)
 
 =================================================================================
 

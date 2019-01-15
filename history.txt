@@ -1,32 +1,29 @@
 *1st week (010719 - 011119)
 
 ### 01-07-2019
-
 #### 1. Research Lab began.
-
 #### 2. 1st meeting with Sebti and Rafik (professors).
-
 #### 3. Configurations setting began.
-
-
 
 ### 01-08-2019
 #### 1. Organizing the procesure including compilation to make 3rd configuration. 
 
-
-
 ### 01-09-2019
-
 #### 1. Practicing making a new kernal image => Failed (we used Ubuntu on Window).
-
 #### 2. Installing Linux on our PCs.
 
-
-
 ### 01-10-2019
-
 #### 1. Transferring created kernel image, selected modules and firmwares to the board.
 
 ### 01-11-2019
 #### 1. the board didn't work. 
 #### 2. we orgarnized github and what we have done in this week.
+<<<<<<< HEAD
+=======
+
+*2nd week (011419 - 011819)
+
+### 01-14-2019
+#### 1. Meething with professors
+#### 2. Detailed objectives
+>>>>>>> 87e1dd98907c29413abe510e335b4c322fc83d8c
