@@ -27,3 +27,7 @@
 #### 1. Meething with professors
 #### 2. Detailed objectives
 >>>>>>> 87e1dd98907c29413abe510e335b4c322fc83d8c
+
+### 01-15-2019
+#### 1. Researching network stacks on Linux began.
+#### 2. Researching differences between normal and RT kernel on Linux began.
