@@ -172,3 +172,60 @@
 - 802.11p structure
 
 =================================================================================
+
+0. 알집을 풀고,
+해당 폴더들을 기존 폴더와 합침
+1. cp -rd /tmp/boot/* /boot
+2. cp -rd /tmp/lib/* /lib
+
+initramfs 파일을 생성
+3. sudo update-initramfs -c -k 4.9.0-rc8+
+
+명령어를 써서 grub 설정
+4. sudo update-grub
+
+
+OS automatically choose second one
+4.9.0-8
+choose : 4.9.0-rc8+
+4.9.0-rc8-rt+
+
+to come back to real-time
+
+how to use grub
+sudo emacs /etc/default/grub
+
+change the variable to 1>4 or 1>2
+
+무조건 끝나고 sudo update-grub 다시 실행해야 함
+reboot 해야함
+
+./cyclictest ./hackbench 명령어 모두 보드 안에서 실행됨
+
+latency
+/pub/linux/utils/rt-tests
+
+chrt -m
+sudo ./cyclictest -t : normal sleep 방식
+sudo ./cyclictest -S : nano sleep 방식
+sudo ./cyclictest -p[NUM] : priority 지정 (자동으로 FIFO 로 지정됨)
+sudo ./cyclictest -policy [NAME] : 스케쥴링 방식 지정(여기서 RR로 지정할 수 있음)
+
+sudo ./hackbench -l1000000
+sudo chrt -f 49 ./hackbench -l 1000000 -g 1
+
+결론 : 
+1. real-time :
+	 in stressful situation,
+		SCHEDULE_OTHER
+		SCHEDULE_FIFO
+			priority 높을때 : ./cyclictest > ./hackbench
+			priority 낮을때 : ./cyclictest < ./hackbench
+		SCHEDULE_RR
+			타임 퀀텀을 좀 나눠서 실행해야함 (30, 100, 300)
+2. voluntary : 똑같이
+
+-> 각각 실험하고, 실험결과를 도표화
+
+ada
+	gnatmake simple.adb -largs lock.o prefault.o jobs.o
