@@ -1,7 +1,6 @@
 ﻿
 *. Constraint
-	타겟 보드와 같은 네트워크 상에 연결되어 있지 않을 시,
-	타겟 보드에 접속불가 에러 발생
+	It will be errors when the board is not in the same network with the host pc.
 
 0. Preparation
 
@@ -43,18 +42,6 @@
 	lo        no wireless extensions.
 
 	enp3s0    no wireless extensions.
-
-정리>
-
-1. 현재 보드 안에 커널 2가지 종류가 존재한다.
-2. 원래 버전 , 추가된 버전
-3. 원래 버전(board default version) : 보드의 아키텍처에 맞는 기본 설정 파일
-	-> 이 기본 설정 파일을 호스트 머신으로 가지고 와야함
-	-> scp 명령어를 이용하여 전송
-4. 추가된 버전 : 802.11p 패치와 real-time kernel 모드가 적용된 설정 파일
-	-> 손 댈 필요 없음
-
-5. 만들어야 할 세번 째 커널 : board default 에 802.11p 패치가 적용된 설정 파일
 
 =================================================================================
 
@@ -137,39 +124,59 @@
 - /tmp $ tar -xvf kernel.tgz
 
 9. Copy the files (/tmp/boot) to (/boot). //tmp 폴더에 있는 압축해제된 boot폴더를 기존 루트에 있는 boot폴더로 옮겨준다.
-- /tmp $cp -fr boot /
+- /tmp $cp -rd /tmp/boot/* /boot
 
 10. Copy the files (/tmp/lib) to (/lib). //tmp 폴더에 있는 압축해제된 lib폴더도 동일한 과정을 거쳐 옮긴다
-- /tmp $cp -fr lib /
+- /tmp $cp -rd /tmp/lib/* /lib
 
+11. Create initrd.img for the new kernel
+- / $sudo update-initramfs -c -k 4.9.0-rc8+
 
-11. Update // 업데이트를 통해 새로 설치한 커널을 실행 시킬 수 있도록 한다.
-- 명령어를 /boot 에서 실행해야 할 지, /lib 에서 실행해야 할 지 모름
+12. Update grub & reboot
+- / $sudo update-grub 
+- / $sudo reboot
 
 =================================================================================
-1. preparing the presentation for meeting
 
-2. linux wireless stack 어떻게 이루어져 있나 이해하기
-3. using 802.11p patch files, 스택이 어떻게 바뀌었나 판단
+* STEPS TO HOW TO SELECT A KERNEL AND ANALYZE PERFORMANCE
 
-4-1. Comparasion tool : 
-	ping, ping one way
-	Iperf
+1. Check which kernel was selected.
+- / $uname -a
 
-이 툴을 이용해서 
-	Latency			(시작 : 처음 실행했을 때, 끝 : 시스템에 의해 erect 되었을 때)
-	Bandwidth 평가하기
+2. We need to select a proper kernel for test.
 
-4-2. 직접 C 코드를 작성하여 프로그램을 만들고 
-	Latency			
-	Bandwidth	
-	평가하기
+ * when we check grub configuration, we will see that
+  "GRUB_DEFAULT = 1>2" (on the board)
+ ** detailed info
+ Default (0): amd64 (voluntary)
+ Selection menu (1): 
+	0) amd64 		1) amd64(recovery) 
+	2) rc8+  (new one)	3) rc8+(recovery) 
+	4) rc8-rt1+  (RT) 	5) rc8-rt1+(recovery)   
+  -If we write 1>2, it means we select the new kernel for test.
+  -If we write 1>4, it means we select the RT kernel for test.
 
-5. Sci-Hub : IEEE 논문 받기
+3. Update grub & reboot
+- / $sudo update-grub 
+- / $sudo reboot
 
-6. 알아봐야 할 것
-- ad-hoc network
-- routine protocol(= GeoNetworking)
-- 802.11p structure
+4. Setting up stressful situation for test by hackbench
+- / $sudo ./hackbench -l1000000 : SCHED_OTHER 
+- / $sudo chrt -f 49 ./hackbench -l 1000000 -g 1 : SCHED_FIFO
+
+
+5. Testing latency by cyclictest
+ Downloaded from /pub/linux/utils/rt-tests
+
+ $chrt -m : show the list of scheduling
+ $sudo ./cyclictest -t : (original) sleep
+ $sudo ./cyclictest -S : (nano) sleep
+ $sudo ./cyclictest -p[NUM] : [NUM] is a parameter of priority (default: SCHED_FIFO)
+ $sudo ./cyclictest -policy [NAME] : [NAME] is a parameter that can select policy (ex: RR)
+
+
+6. Testing performance between voluntary and RT kernel by simple.adb
+ $gnatmake simple.adb -largs lock.o prefault.o jobs.o
+ : Normally, RT kernel doesn't ignore tasks that have lower priority.
 
 =================================================================================
