@@ -85,8 +85,9 @@
 
  *curses.h error solution : sudo apt-get install libncurses5-dev libcursesw5-dev
 
- : two features are revised
- & in network support, select mac option and check OCB
+ : three features are revised
+ & in network support, check nl80211
+ & in network support, check mac option and check OCB
  & in kernel hacking, uncheck bug reporting
  & save and exit
 
