@@ -52,4 +52,18 @@
 #### 3. Learning different performance between different kernels.
 
 ### 01-22-2019
-####
+#### 1. Analyzing the latency using cyclictest, hackbench
+
+### 01-23-2019
+#### 1. Preparing presentation 
+
+### 01-24-2019
+#### 1. Searching how to implement sockets through MAC address in 802.11p network began
+#### 2. Searching some examples for V2X
+
+### 01-25-2019
+#### 1. [Real time Linux communication] paper began
+
+=======
+
+*4th week (012819 - 020119)
