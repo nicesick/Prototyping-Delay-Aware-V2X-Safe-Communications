@@ -63,7 +63,11 @@
 
 ### 01-25-2019
 #### 1. [Real time Linux communication] paper began
+#### 2. Studying socket began
 
 =======
 
 *4th week (012819 - 020119)
+### 01-28-2019
+#### 1. Meeting with professors
+#### 2. Organizing what we studied about sockets
