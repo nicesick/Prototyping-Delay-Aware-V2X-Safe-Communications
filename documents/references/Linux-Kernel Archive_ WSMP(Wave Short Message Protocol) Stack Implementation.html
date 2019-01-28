@@ -1,0 +1,562 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<!-- saved from url=(0059)http://lkml.iu.edu/hypermail/linux/kernel/1411.1/05026.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Linux-Kernel Archive: WSMP(Wave Short Message Protocol)  Stack Implementation</title>
+<meta name="Author" content="vamsi &lt;vamsi07450@xxxxxxxxx&gt;">
+<meta name="Subject" content="WSMP(Wave Short Message Protocol)  Stack Implementation">
+</head> 
+<body bgcolor="#FFFFFF" text="#000000">
+
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<h1>WSMP(Wave Short Message Protocol)  Stack Implementation</h1>
+<strong>From: </strong>vamsi
+<br><strong>Date: </strong> Fri Nov 14 2014 - 06:28:55 EST
+<p>
+</p><ul>
+<li><strong>Next message: </strong> <a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/05027.html"> Ralf Baechle: "Re: [PATCH V5 2/4] of: Add binding document for MIPS GIC"</a>
+
+</li><li><strong>Previous message: </strong> <a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/05025.html"> Stefan Richter: "[git pull] FireWire fix"</a>
+
+
+
+
+
+</li><li><strong>Messages sorted by: </strong><a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/date.html#05026">[ date ]</a> <a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/index.html#05026">[ thread ]</a> <a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/subject.html#05026">[ subject ]</a> <a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/author.html#05026">[ author ]</a>
+</li></ul>
+
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+<hr noshade="">
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+Hi  ,<br>
+<br>
+ I am planing to develop WSMP (Wave Short Message Protocol) protocol in<br>
+transport layer.Any suggestions will be appreciated,<br>
+<br>
+My idea is given below<br>
+<br>
+WSMP(Wave Short Message Protocol ie. 1609.3<br>
+published by the IEEE Vehicular Society) is a part of the DSRC(Dedicated<br>
+Short Range Communications) standards suite which include 802.11p,<br>
+1609.x series. Which are used for "intervehicular communication" and<br>
+also for "vehicle to infrastructure communication".<br>
+<br>
+The DSRC/WAVE stack:<br>
+<br>
+         Application Layer (SAE J2735 Message set dictionary)<br>
+<br>
+                ^<br>
+                |<br>
+         Transport Layer -|<br>
+                ^         |<br>
+                |         |--(WSMP IEEE 1609.3) Both combined<br>
+         Network Layer    |<br>
+                ^         |<br>
+                |         |<br>
+         LLC(existing)   -|<br>
+                ^<br>
+                |<br>
+         Datalink Layer  -|<br>
+                ^         |<br>
+                |         |--(1609.4 and IEEE802.11p)<br>
+         Physical Layer  -|<br>
+<br>
+<br>
+Currently as IEEE 802.11-2012 has released,it is having 802.11p also<br>
+merged in it.<br>
+We may have WSMP acting as both transport layer and network layer.We<br>
+have some proprietry<br>
+implementations of all these standards but no open source implementation<br>
+has been done.<br>
+<br>
+We propose to develop this in a way so that it has a socket interface to<br>
+the user.<br>
+Please give your suggestions.<br>
+For more info regarding the stack one may refer to the Document<br>
+IEEE1609.0 or John Kenney's<br>
+paper on this subject "Dedicated Short-Range<br>
+Communications (DSRC) Standards in the United States"<br>
+link  "<a rel="nofollow" href="http://secs.oakland.edu/~gpcorser/vanet-kenny-DSRC.pdf%22">http://secs.oakland.edu/~gpcorser/vanet-kenny-DSRC.pdf"</a>;<br>
+<br>
+      * Following attachments are my source code of transport layer<br>
+        please give me suggestion.<br>
+<br>
+I added following attachment only transmission function but<br>
+unfortunately this packet is discarded in hardware please help me.<br>
+<br>
+<br>
+Thanks &amp; Regards,<br>
+Vamsi<br>
+MODULE_LICENSE("GPL");<br>
+#include &lt;net/inet_sock.h&gt;<br>
+<br>
+#define WSMP_HDR_SIZE 16<br>
+#ifndef AF_WSMP<br>
+<br>
+#define AF_WSMP    44<br>
+#define PF_WSMP    AF_WSMP<br>
+#endif<br>
+<br>
+#define wsmp_sk(__sk) ((struct wsmp_sock *) __sk)<br>
+<br>
+struct wsmp_sock {<br>
+	struct inet_sock inet;<br>
+	struct list_head accept_q;<br>
+	u16 wsmp_heder_length;<br>
+	<br>
+	__be16 num; //protocol number<br>
+};<br>
+extern  struct proto_ops wsmp_sock_ops;<br>
+<br>
+<br>
+struct wsmphdr {<br>
+       __u8 wsm_version;<br>
+       __u8 security_type;<br>
+       __u8 cno;<br>
+       __u8 data_rate;<br>
+       __u8 tx_pow_level;<br>
+       __u32 psid;<br>
+       __u16 wsm_length;<br>
+       uint8_t *data;<br>
+};<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+struct sockaddr_wsmp {<br>
+	__u16 sin_family;<br>
+	__u8  wsm_version;<br>
+	__u8  security_type;<br>
+	__u8  cno;<br>
+	__u8  data_rate;<br>
+	__u8  tx_pow_level;<br>
+	__u32 psid;<br>
+	__u16 wsm_length;<br>
+};<br>
+	<br>
+<br>
+/*<br>
+ * This file implement the WSMP(Wave Short Message Protocol)  priv API.<br>
+ *<br>
+ * Authors :	Tata P Vamsi Krishna &lt;vamsi07450@xxxxxxxxx&gt;<br>
+ * Copyright	2014 Tata P Vamsi Krishna &lt;vamsi07450@xxxxxxxxx&gt;<br>
+ *<br>
+ * (As all part of the Linux kernel, this file is GPL)<br>
+ */<br>
+#include &lt;linux/module.h&gt;<br>
+#include &lt;linux/skbuff.h&gt;<br>
+#include &lt;linux/debugfs.h&gt;<br>
+#include &lt;linux/seq_file.h&gt;<br>
+#include &lt;linux/module.h&gt;<br>
+#include &lt;asm/ioctls.h&gt;<br>
+#include &lt;linux/proc_fs.h&gt;<br>
+#include &lt;linux/socket.h&gt;<br>
+#include &lt;linux/net.h&gt;<br>
+#include &lt;net/sock.h&gt;<br>
+#include"wsmp.h"<br>
+<br>
+static void wsmp_sock_kill(struct sock *sk);<br>
+ <br>
+static int wsmp_sock_shutdown(struct socket *sock, int how)<br>
+{	struct sock *sk = sock-&gt;sk;<br>
+	int err = 0;<br>
+<br>
+	<br>
+<br>
+	if (!sk)<br>
+		return 0;<br>
+<br>
+	if (!sk-&gt;sk_shutdown) <br>
+		sk-&gt;sk_shutdown = SHUTDOWN_MASK;<br>
+	//	__rfcomm_sock_close(sk);<br>
+<br>
+		if (sock_flag(sk, SOCK_LINGER) &amp;&amp; sk-&gt;sk_lingertime)<br>
+		//	err = bt_sock_wait_state(sk, BT_CLOSED, sk-&gt;sk_lingertime);<br>
+	<br>
+	release_sock(sk);<br>
+	printk("This is wsmp_sock_shutdown\n");<br>
+	return err;<br>
+	<br>
+	<br>
+<br>
+}<br>
+<br>
+static int wsmp_sock_release(struct socket *sock)<br>
+{	<br>
+	struct sock *sk = sock-&gt;sk;<br>
+	int err = 0;<br>
+	if (!sk)<br>
+		return 0;<br>
+	wsmp_sock_shutdown(sock,2);<br>
+	sock_orphan(sk);<br>
+	wsmp_sock_kill(sk);<br>
+	printk("This is wsmp_sock_release..\n");<br>
+	return 0;<br>
+}<br>
+<br>
+static void wsmp_sock_kill(struct sock *sk){<br>
+<br>
+	if (!sock_flag(sk, SOCK_ZAPPED) || sk-&gt;sk_socket)<br>
+		return;<br>
+<br>
+	sock_set_flag(sk, SOCK_DEAD);<br>
+	sock_put(sk);<br>
+	printk("This is wsmp_sock_kill..\n");<br>
+}<br>
+<br>
+<br>
+<br>
+static int wsmp_sock_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)<br>
+{<br>
+	 struct sockaddr_in *addr = (struct sockaddr_in *)uaddr;<br>
+         struct sock *sk = sock-&gt;sk;<br>
+         struct inet_sock *inet = inet_sk(sk);<br>
+         struct net *net = sock_net(sk);<br>
+         unsigned short snum;<br>
+         int chk_addr_ret;<br>
+         int err,i;<br>
+ <br>
+         /* If the socket has its own bind function then use it. (RAW) */<br>
+         if (sk-&gt;sk_prot-&gt;bind) {<br>
+                 err = sk-&gt;sk_prot-&gt;bind(sk, uaddr, addr_len);<br>
+               printk("error message");;<br>
+         }<br>
+	printk("This family....%d\n",uaddr-&gt;sa_family);<br>
+	printk("This address: ");<br>
+	for(i=0;i&lt;14;i++)<br>
+		printk("%d ",uaddr-&gt;sa_data[i]);<br>
+	<br>
+	printk("\n");<br>
+<br>
+	printk("This is wsmp_sock_bind..\n");<br>
+	return 0;<br>
+}<br>
+<br>
+static int wsmp_sock_connect(struct socket *sock, struct sockaddr *addr, int alen, int flags)<br>
+{<br>
+	printk("This is wsmp_sock_connect..\n");<br>
+	return 0;<br>
+}<br>
+static int wsmp_sock_listen(struct socket *sock, int backlog)<br>
+{<br>
+	printk("This is wsmp_sock_listen\n");<br>
+	return 0;<br>
+}<br>
+<br>
+static int wsmp_sock_accept(struct socket *sock, struct socket *newsock, int flags)<br>
+{<br>
+	printk("This is wsmp_sock_accept\n");<br>
+	return 0;<br>
+}<br>
+<br>
+static int wsmp_sock_getname(struct socket *sock, struct sockaddr *addr, int *len, int peer)<br>
+{<br>
+	printk("This is wsmp_sock_getname\n");<br>
+	return 0;<br>
+}<br>
+<br>
+<br>
+static int wsmp_sock_sendmsg(struct kiocb *iocb, struct socket *sock,<br>
+			    struct msghdr *msg, size_t len)<br>
+{	<br>
+	struct sock *sk = sock-&gt;sk;<br>
+<br>
+        return sk-&gt;sk_prot-&gt;sendmsg(iocb, sk, msg, len);<br>
+}<br>
+<br>
+<br>
+int wsmp_sock_recvmsg(struct kiocb *iocb, struct socket *sock,<br>
+				struct msghdr *msg, size_t len, int flags)<br>
+{<br>
+	printk("This is wsmp_sock_recvmsg\n");<br>
+	return 0;<br>
+}<br>
+<br>
+<br>
+<br>
+int wsmp_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)<br>
+{<br>
+	printk("This is wsmp_sock_ioctl\n");<br>
+	return 0;<br>
+}<br>
+<br>
+<br>
+<br>
+struct proto_ops wsmp_sock_ops = {<br>
+	.family		= PF_WSMP,<br>
+	.owner		= THIS_MODULE,<br>
+	.release	= wsmp_sock_release,<br>
+	.bind		= wsmp_sock_bind,<br>
+	.connect	= wsmp_sock_connect,<br>
+	.listen		= wsmp_sock_listen,<br>
+	.accept		= wsmp_sock_accept,<br>
+	.getname	= wsmp_sock_getname,<br>
+	.sendmsg	= wsmp_sock_sendmsg,<br>
+	.recvmsg	= wsmp_sock_recvmsg,<br>
+	.ioctl		= wsmp_sock_ioctl,<br>
+	.mmap		= sock_no_mmap,<br>
+	.socketpair	= sock_no_socketpair,<br>
+	.shutdown	= wsmp_sock_shutdown,<br>
+};<br>
+<br>
+MODULE_LICENSE("GPL");<br>
+/*<br>
+ * This file implement the WSMP(Wave Short Message Protocol)  priv API.<br>
+ *<br>
+ * Authors :	Tata P Vamsi Krishna &lt;vamsi07450@xxxxxxxxx&gt;<br>
+ * Copyright	2014 Tata P Vamsi Krishna &lt;vamsi07450@xxxxxxxxx&gt;<br>
+ *<br>
+ * (As all part of the Linux kernel, this file is GPL)<br>
+ */<br>
+<br>
+<br>
+#include &lt;linux/module.h&gt;<br>
+#include &lt;asm/ioctls.h&gt;<br>
+#include "wsmp.h"<br>
+#include &lt;linux/proc_fs.h&gt;<br>
+#include &lt;linux/socket.h&gt;<br>
+#include &lt;linux/net.h&gt;<br>
+#include &lt;net/sock.h&gt;<br>
+#include&lt;linux/init.h&gt;<br>
+#include &lt;linux/netdevice.h&gt;<br>
+<br>
+<br>
+static void wsmp_setup(struct net_device *dev)<br>
+{<br>
+	<br>
+}<br>
+<br>
+ <br>
+<br>
+static void wsmp_proto_sendmsg(struct kiocb *iocb, struct sock *sk,struct msghdr *msg, size_t len)<br>
+{<br>
+	struct net_device *dev;<br>
+     //   unsigned int mtu;<br>
+        struct sk_buff *skb;<br>
+	int i;<br>
+	//__be16 proto;<br>
+	//struct wsmp_sock *wsmpo = wsmp_sk(sk);<br>
+	//struct dgram_sock *ro = dgram_sk(sk);<br>
+	//unsigned char * data;<br>
+	struct wsmphdr wsmp_hdr;<br>
+	int err,hlen,tlen;<br>
+	<br>
+	<br>
+	//DECLARE_SOCKADDR(struct sockaddr_ll *, saddr, msg-&gt;msg_name);<br>
+	<br>
+	//printk("\nprotocol number%d \n",saddr-&gt;sll_protocol);<br>
+	//dev = alloc_netdev(0,"wlan0",wsmp_setup);<br>
+	dev=__dev_get_by_name(&amp;init_net,"wlan0");<br>
+	<br>
+	if (!dev) {<br>
+		printk("alloc_netdev failed\n");<br>
+	}<br>
+	<br>
+<br>
+	hlen = LL_RESERVED_SPACE(dev);<br>
+	tlen = dev-&gt;needed_tailroom;<br>
+	wsmp_hdr.wsm_version=2;<br>
+	wsmp_hdr.security_type=5;<br>
+	wsmp_hdr.cno=100;<br>
+	wsmp_hdr.data_rate=24;<br>
+	wsmp_hdr.tx_pow_level=48;<br>
+	wsmp_hdr.psid=14;<br>
+	wsmp_hdr.wsm_length=114;<br>
+<br>
+	skb = sock_alloc_send_skb(sk, 237,<br>
+                        msg-&gt;msg_flags &amp; MSG_DONTWAIT,<br>
+                        &amp;err);<br>
+<br>
+	printk("len ............%d..............\n",hlen+tlen+len+WSMP_HDR_SIZE);<br>
+        if (!skb)<br>
+                printk("error occuring allocation of sk_buff");<br>
+	<br>
+        skb_reserve(skb, hlen);<br>
+<br>
+	<br>
+	skb_reset_network_header(skb);<br>
+	<br>
+	<br>
+<br>
+	printk("wsmp_proto_sendmsg....%s......%d....\n",msg-&gt;msg_iov-&gt;iov_base,msg-&gt;msg_iov-&gt;iov_len);<br>
+	<br>
+	<br>
+<br>
+        err = memcpy_fromiovec(skb_put(skb, len), msg-&gt;msg_iov, len);<br>
+        if (err &lt; 0) {<br>
+		printk("memcpy_fromiovec");<br>
+		return;<br>
+	}<br>
+<br>
+	printk("---------%s------\n",skb-&gt;data);<br>
+	printk("-----len:----%d---data:- %s--%x....%d...%d\n",dev-&gt;mtu,dev-&gt;name,dev-&gt;dev_addr[1],hlen,tlen);<br>
+	skb_push(skb, WSMP_HDR_SIZE);<br>
+	printk("---------%s------\n",skb-&gt;data);<br>
+        skb_reset_transport_header(skb);<br>
+        memcpy(skb_transport_header(skb), &amp;wsmp_hdr, WSMP_HDR_SIZE);<br>
+               // goto out_skb;<br>
+	<br>
+        skb-&gt;dev = dev;<br>
+        skb-&gt;sk  = sk;<br>
+       skb-&gt;protocol = htons(0x88dc);<br>
+	<br>
+      	printk(".....%d.....%x",skb-&gt;protocol,skb-&gt;protocol);<br>
+	<br>
+	<br>
+<br>
+	printk("wsmp_proto_sendmsg. return:%d.. data:%s..len:%d.. \n",err,skb-&gt;data,skb-&gt;len);<br>
+   	err = dev_queue_xmit(skb);<br>
+	<br>
+	printk("wsmp_proto_sendmsg. return:%d.. data:%s..len:%d.. \n",err,skb-&gt;data,skb-&gt;len);<br>
+    	if (err &lt; 0) {<br>
+		printk("dev_queue_xmit");<br>
+		return;<br>
+	}<br>
+         <br>
+<br>
+	  dev_put(dev);<br>
+	for (i=0; i &lt; skb-&gt;len; i++)<br>
+		printk("%02x ",skb-&gt;data[i]);<br>
+	printk("\n....wsmp_proto_sendmsg\n");<br>
+<br>
+}<br>
+<br>
+static struct proto wsmp_proto = {<br>
+	.name		= "WSMP",<br>
+	.owner		= THIS_MODULE,<br>
+	.obj_size	= sizeof(struct wsmp_sock),<br>
+	.sendmsg	= wsmp_proto_sendmsg,	<br>
+};<br>
+<br>
+static struct sock *wsmp_sock_alloc(struct net *net, struct socket *sock, int proto, gfp_t prio)<br>
+{		<br>
+		struct sock *sk;<br>
+<br>
+	sk = sk_alloc(net, PF_WSMP, prio, &amp;wsmp_proto);<br>
+	if (!sk)<br>
+		return NULL;<br>
+	sock_init_data(sock, sk);<br>
+	INIT_LIST_HEAD(&amp;wsmp_sk(sk)-&gt;accept_q);<br>
+	<br>
+	printk("this inside wsmp_sock_alloc..\n");<br>
+	return sk;<br>
+	<br>
+}<br>
+<br>
+<br>
+static void wsmp_sock_init(struct sock *sk, struct sock *parent)<br>
+{<br>
+	<br>
+	printk("I am inside wsmp_sock_init\n");<br>
+	if (parent) {<br>
+		sk-&gt;sk_type = parent-&gt;sk_type;<br>
+		security_sk_clone(parent, sk);<br>
+	}<br>
+}<br>
+<br>
+static int wsmp_sock_create(struct net *net, struct socket *sock, int protocol,<br>
+			   int kern)<br>
+{<br>
+	struct sock *sk;<br>
+<br>
+	printk("I am inside wsmp_sock_create..\n");<br>
+<br>
+	sock-&gt;state = SS_UNCONNECTED;<br>
+	<br>
+	if (sock-&gt;type != SOCK_SEQPACKET&amp;&amp; sock-&gt;type != SOCK_STREAM&amp;&amp;<br>
+			sock-&gt;type != SOCK_DGRAM)<br>
+		return -ESOCKTNOSUPPORT;<br>
+	<br>
+	sock-&gt;ops = &amp;wsmp_sock_ops;<br>
+<br>
+	sk = wsmp_sock_alloc(net, sock, protocol, GFP_ATOMIC);<br>
+	if (!sk)<br>
+		return -ENOMEM;<br>
+	<br>
+	wsmp_sock_init(sk, NULL);<br>
+	<br>
+	return 0;<br>
+}<br>
+<br>
+static struct net_proto_family wsmp_sock_family_ops = {<br>
+	.owner	= THIS_MODULE,<br>
+	.family	= PF_WSMP,<br>
+	.create	= wsmp_sock_create,<br>
+};<br>
+<br>
+<br>
+<br>
+<br>
+static int __init wsmp_init(void) {<br>
+<br>
+	int err;<br>
+	printk("Inserting wsmp module..\n");<br>
+<br>
+	err = sock_register(&amp;wsmp_sock_family_ops);<br>
+	if (err &lt; 0) {<br>
+		printk("sock_register failed\n");<br>
+		return err;<br>
+	} else		<br>
+	err = proto_register(&amp;wsmp_proto, 1);<br>
+	if (err &lt; 0) {<br>
+		printk("proto_register failed\n");<br>
+		goto err;<br>
+	}<br>
+<br>
+err:<br>
+	//sock_unregister(PF_WSMP);<br>
+<br>
+	return err;<br>
+}<br>
+void __exit wsmp_exit(void)<br>
+{<br>
+	sock_unregister(PF_WSMP);<br>
+	proto_unregister(&amp;wsmp_proto);<br>
+}<br>
+<br>
+module_init(wsmp_init);<br>
+module_exit(wsmp_exit);<br>
+MODULE_LICENSE("GPL");<br>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+<hr noshade="">
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<ul>
+<li><strong>Next message: </strong> <a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/05027.html"> Ralf Baechle: "Re: [PATCH V5 2/4] of: Add binding document for MIPS GIC"</a>
+
+</li><li><strong>Previous message: </strong> <a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/05025.html"> Stefan Richter: "[git pull] FireWire fix"</a>
+
+
+
+
+
+</li><li><strong>Messages sorted by: </strong><a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/date.html#05026">[ date ]</a> <a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/index.html#05026">[ thread ]</a> <a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/subject.html#05026">[ subject ]</a> <a href="http://lkml.iu.edu/hypermail/linux/kernel/1411.1/author.html#05026">[ author ]</a>
+</li></ul>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+
+
+</body></html>
