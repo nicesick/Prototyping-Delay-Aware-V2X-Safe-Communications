@@ -89,6 +89,25 @@ main (void)
     s_dest_addr.sll_addr[6]     = 0x00;/*not used*/
     s_dest_addr.sll_addr[7]     = 0x00;/*not used*/
 
+
+    /* print START*/
+    u16_i = 0;
+
+    print("s_dest_addr.sll_family    is %hd\n",s_dest_addr.sll_family );
+    print("s_dest_addr.sll_protocol  is %hd\n",s_dest_addr.sll_protocol );
+    print("s_dest_addr.sll_ifindex   is %d\n",s_dest_addr.sll_ifindex );
+    print("s_dest_addr.sll_hatype    is %hd\n",s_dest_addr.sll_hatype );
+    print("s_dest_addr.sll_pkttype   is %c\n",s_dest_addr.sll_pkttype );
+    print("s_dest_addr.sll_halen     is %c\n",s_dest_addr.sll_halen );
+    print("s_dest_addr.sll_addr      is %c\n",s_dest_addr.sll_halen );
+
+    for( u16_i=0; u16_i<sizeof(s_dest_addr.sll_addr)-2; u16_i++ )
+            {
+                printf ("%02x:", s_dest_addr.sll_addr[u16_i]);
+            }
+    u16_i=0;
+     /* print END*/
+
     /*set the frame header*/
     (void) memcpy (pu8a_frame, gu8a_dest_mac, ETH_ALEN);
     (void) memcpy (pu8a_frame+ETH_ALEN , gu8a_src_mac, ETH_ALEN);
@@ -141,6 +160,7 @@ sock_recv_thread (void *p_arg)
     int32_t             s32_res         = -1;
     uint16_t            u16_data_off    = 0;
     uint8_t             *pu8a_frame     = NULL;
+    uint16_t u16_i = 0;
 
     printf ("Socket receive thread\n");
 
@@ -163,10 +183,29 @@ sock_recv_thread (void *p_arg)
     s_src_addr.sll_hatype       = ARPHRD_ETHER;
     s_src_addr.sll_pkttype      = PACKET_HOST;//PACKET_OTHERHOST;
     s_src_addr.sll_halen        = ETH_ALEN;
+    
+    /* print START*/
+    
+
+    print("s_src_addr.sll_family    is %hd\n",s_src_addr.sll_family );
+    print("s_src_addr.sll_protocol  is %hd\n",s_src_addr.sll_protocol );
+    print("s_src_addr.sll_ifindex   is %d\n",s_src_addr.sll_ifindex );
+    print("s_src_addr.sll_hatype    is %hd\n",s_src_addr.sll_hatype );
+    print("s_src_addr.sll_pkttype   is %c\n",s_src_addr.sll_pkttype );
+    print("s_src_addr.sll_halen     is %c\n",s_src_addr.sll_halen );
+    print("s_src_addr.sll_addr      is %c\n",s_src_addr.sll_halen );
+
+    for( u16_i=0; u16_i<sizeof(s_src_addr.sll_addr)-2; u16_i++ )
+            {
+                printf ("%02x:", s_src_addr.sll_addr[u16_i]);
+            }
+
+     /* print END*/
 
     s32_res = bind (s32_sock,
                     (struct sockaddr *) &s_src_addr,
                     sizeof(s_src_addr));
+
 
     if( -1 == s32_res )
     {
@@ -201,7 +240,7 @@ sock_recv_thread (void *p_arg)
         }
         else
         {
-            uint16_t u16_i = 0;
+            u16_i = 0;
 
             printf ("Received data from ");
 
