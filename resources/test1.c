@@ -25,7 +25,7 @@ static uint8_t gu8a_dest_mac[6] = {0x04, 0xf0, 0x21, 0x36, 0x1b, 0x91};
 
 int32_t get_nic_index (uint8_t *pu8_nic_card_name);
 
-void* sock_recv_thread (void *p_arg);
+void* sock_recv_thread ();
 
 int
 main (void)
@@ -63,11 +63,11 @@ main (void)
         goto LABEL_CLEAN_EXIT;
     }
 
-    printf ("Socket created\n");
+    printf ("Sender) Socket created\n");
 
     fflush (stdout);
 
-    (void) pthread_create (&ul_recv_thd_id, NULL, sock_recv_thread, &s32_sock);
+    (void) pthread_create (&ul_recv_thd_id, NULL, sock_recv_thread, NULL);
 
     sleep (1);
 
@@ -155,10 +155,10 @@ LABEL_CLEAN_EXIT:
 }
 
 void*
-sock_recv_thread (void *p_arg)
+sock_recv_thread ()
 {
     struct sockaddr_ll  s_src_addr;
-    int32_t             s32_sock        = * ((int32_t *)p_arg);
+    int32_t             s32_sock        = -1;
     int32_t             s32_res         = -1;
     uint16_t            u16_data_off    = 0;
     uint8_t             *pu8a_frame     = NULL;
@@ -169,7 +169,16 @@ sock_recv_thread (void *p_arg)
     u16_data_off = (uint16_t) (ETH_FRAME_LEN - ETH_DATA_LEN);
 
     pu8a_frame = (uint8_t*) calloc (ETH_FRAME_LEN, 1);
+    
+    s32_sock = socket (AF_PACKET, SOCK_RAW, htons (ETH_P_ALL));
 
+    if( -1 == s32_sock )
+    {
+        perror ("Could not create the socket");
+        goto LABEL_CLEAN_EXIT;
+    }
+
+    printf ("Receiver) Socket created\n");
     if( NULL == pu8a_frame )
     {
         printf ("Could not get memory for the receive frame\n");
@@ -200,7 +209,7 @@ sock_recv_thread (void *p_arg)
             {
                 printf ("%02x:", s_src_addr.sll_addr[u16_i]);
             }
-    printf("\n")''
+    printf("\n");
 
      /* print END*/
 
