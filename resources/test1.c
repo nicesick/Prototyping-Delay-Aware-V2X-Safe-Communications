@@ -93,13 +93,13 @@ main (void)
     /* print START*/
     u16_i = 0;
 
-    print("s_dest_addr.sll_family    is %hd\n",s_dest_addr.sll_family );
-    print("s_dest_addr.sll_protocol  is %hd\n",s_dest_addr.sll_protocol );
-    print("s_dest_addr.sll_ifindex   is %d\n",s_dest_addr.sll_ifindex );
-    print("s_dest_addr.sll_hatype    is %hd\n",s_dest_addr.sll_hatype );
-    print("s_dest_addr.sll_pkttype   is %c\n",s_dest_addr.sll_pkttype );
-    print("s_dest_addr.sll_halen     is %c\n",s_dest_addr.sll_halen );
-    print("s_dest_addr.sll_addr      is %c\n",s_dest_addr.sll_halen );
+    printf("s_dest_addr.sll_family    is %hd\n",s_dest_addr.sll_family );
+    printf("s_dest_addr.sll_protocol  is %hd\n",s_dest_addr.sll_protocol );
+    printf("s_dest_addr.sll_ifindex   is %d\n",s_dest_addr.sll_ifindex );
+    printf("s_dest_addr.sll_hatype    is %hd\n",s_dest_addr.sll_hatype );
+    printf("s_dest_addr.sll_pkttype   is %c\n",s_dest_addr.sll_pkttype );
+    printf("s_dest_addr.sll_halen     is %c\n",s_dest_addr.sll_halen );
+    printf("s_dest_addr.sll_addr      is %c\n",s_dest_addr.sll_halen );
 
     for( u16_i=0; u16_i<sizeof(s_dest_addr.sll_addr)-2; u16_i++ )
             {
@@ -117,10 +117,12 @@ main (void)
     while( 1 )
     {
         (void) memset (&pu8a_frame[u16_data_off], '\0', ETH_DATA_LEN);
-
+        printf("Sender) memeset done \n");
+        
         (void) snprintf ((char *) &pu8a_frame[u16_data_off],
                          ETH_DATA_LEN,
                          "raw packet test, %d", u16_i++);
+        printf("Sender) snprintf done \n");
 
         s32_res = sendto (s32_sock,
                           pu8a_frame,
@@ -187,18 +189,18 @@ sock_recv_thread (void *p_arg)
     /* print START*/
     
 
-    print("s_src_addr.sll_family    is %hd\n",s_src_addr.sll_family );
-    print("s_src_addr.sll_protocol  is %hd\n",s_src_addr.sll_protocol );
-    print("s_src_addr.sll_ifindex   is %d\n",s_src_addr.sll_ifindex );
-    print("s_src_addr.sll_hatype    is %hd\n",s_src_addr.sll_hatype );
-    print("s_src_addr.sll_pkttype   is %c\n",s_src_addr.sll_pkttype );
-    print("s_src_addr.sll_halen     is %c\n",s_src_addr.sll_halen );
-    print("s_src_addr.sll_addr      is %c\n",s_src_addr.sll_halen );
-
+    printf("s_src_addr.sll_family    is %hd\n",s_src_addr.sll_family );
+    printf("s_src_addr.sll_protocol  is %hd\n",s_src_addr.sll_protocol );
+    printf("s_src_addr.sll_ifindex   is %d\n",s_src_addr.sll_ifindex );
+    printf("s_src_addr.sll_hatype    is %hd\n",s_src_addr.sll_hatype );
+    printf("s_src_addr.sll_pkttype   is %c\n",s_src_addr.sll_pkttype );
+    printf("s_src_addr.sll_halen     is %c\n",s_src_addr.sll_halen );
+    printf("s_src_addr.sll_addr      is ");
     for( u16_i=0; u16_i<sizeof(s_src_addr.sll_addr)-2; u16_i++ )
             {
                 printf ("%02x:", s_src_addr.sll_addr[u16_i]);
             }
+    printf("\n")''
 
      /* print END*/
 
@@ -221,6 +223,7 @@ sock_recv_thread (void *p_arg)
         socklen_t           u32_sender_addr_len = sizeof (s_sender_addr);
 
         (void) memset (&s_sender_addr, 0, sizeof (s_sender_addr));
+        printf("Receiver) memset done\n");
 
         s32_res = recvfrom (s32_sock,
                             pu8a_frame,
@@ -228,6 +231,7 @@ sock_recv_thread (void *p_arg)
                             0,
                             (struct sockaddr *) &s_sender_addr,
                             &u32_sender_addr_len);
+        printf("Receiver) recvfrom done\n");
 
         if( -1 == s32_res )
         {
