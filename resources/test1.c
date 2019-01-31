@@ -234,6 +234,13 @@ sock_recv_thread ()
         (void) memset (&s_sender_addr, 0, sizeof (s_sender_addr));
         printf("Receiver) memset done\n");
 
+        printf("====test====\n");
+        printf("s_sender_addr.sll_addr is ");
+        for(int i = 0; i<8; i++){
+           printf ("%02x:", s_sender_addr.sll_addr[i]);
+        }
+        printf("\n");
+        
         s32_res = recvfrom (s32_sock,
                             pu8a_frame,
                             ETH_FRAME_LEN,
@@ -241,7 +248,7 @@ sock_recv_thread ()
                             (struct sockaddr *) &s_sender_addr,
                             &u32_sender_addr_len);
         printf("Receiver) recvfrom done\n");
-
+        printf("====test====\n");
         if( -1 == s32_res )
         {
             perror ("Socket receive failed");
