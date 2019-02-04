@@ -2,13 +2,12 @@
  Coded by Hyunjae Lee and Jihun Lim
  
  This is a simple implementation for latency evaluation in a V2V network.
- We assume that all node knows other MAC addresses who want to communicate $
+ We assume that all node knows other MAC addresses who want to communicate with
 
  [Server]
- There are a receiver in main function.
- The receiver is waiting until the receiver get some message with link-layer header.
- Whenever the receiver get the message from clients,
- the receiver show user to see link-layer header and payload.
+ This is a receiver that is waiting until it gets a message with link-layer header from the client.
+ Whenever the receiver gets a message from clients,
+ the receiver shows user link-layer header and payload.
 
   *Reference : https://stackoverflow.com/questions/10824827/raw-sockets-com$
 */
@@ -18,7 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <linux/sockios.h>
@@ -37,8 +35,6 @@ struct sockaddr_ll  s_src_addr;
     uint8_t             *pu8a_frame     = NULL;
     uint16_t u16_i = 0;
 
-    printf ("Socket receive thread\n");
-
     u16_data_off = (uint16_t) (ETH_FRAME_LEN - ETH_DATA_LEN);
 
     pu8a_frame = (uint8_t*) calloc (ETH_FRAME_LEN, 1);
@@ -51,7 +47,8 @@ struct sockaddr_ll  s_src_addr;
         goto LABEL_CLEAN_EXIT;
     }
 
-    //printf ("Receiver) Socket created\n");
+    printf ("Server) Socket created\n");
+
     if( NULL == pu8a_frame )
     {
         printf ("Could not get memory for the receive frame\n");
@@ -67,24 +64,6 @@ struct sockaddr_ll  s_src_addr;
     s_src_addr.sll_hatype       = ARPHRD_ETHER;
     s_src_addr.sll_pkttype      = PACKET_HOST;//PACKET_OTHERHOST;
     s_src_addr.sll_halen        = ETH_ALEN;
-    
-    // /* print START*/
-    
-
-    // printf("s_src_addr.sll_family    is %hd\n",s_src_addr.sll_family );
-    // printf("s_src_addr.sll_protocol  is %hd\n",s_src_addr.sll_protocol );
-    // printf("s_src_addr.sll_ifindex   is %d\n",s_src_addr.sll_ifindex );
-    // printf("s_src_addr.sll_hatype    is %hd\n",s_src_addr.sll_hatype );
-    // printf("s_src_addr.sll_pkttype   is %c\n",s_src_addr.sll_pkttype );
-    // printf("s_src_addr.sll_halen     is %c\n",s_src_addr.sll_halen );
-    // printf("s_src_addr.sll_addr      is ");
-    // for( u16_i=0; u16_i<sizeof(s_src_addr.sll_addr)-2; u16_i++ )
-    //         {
-    //             printf ("%02x:", s_src_addr.sll_addr[u16_i]);
-    //         }
-    // printf("\n");
-
-    //  /* print END*/
 
     s32_res = bind (s32_sock,
                     (struct sockaddr *) &s_src_addr,
@@ -105,23 +84,14 @@ struct sockaddr_ll  s_src_addr;
         socklen_t           u32_sender_addr_len = sizeof (s_sender_addr);
 
         (void) memset (&s_sender_addr, 0, sizeof (s_sender_addr));
-        //printf("Receiver) memset done\n");
 
-        //printf("====test====\n");
-        //printf("s_sender_addr.sll_addr is ");
-        //for(int i = 0; i<8; i++){
-        //   printf ("%02x:", s_sender_addr.sll_addr[i]);
-        //}
-        //printf("\n");
-        
         s32_res = recvfrom (s32_sock,
                             pu8a_frame,
                             ETH_FRAME_LEN,
                             0,
                             (struct sockaddr *) &s_sender_addr,
                             &u32_sender_addr_len);
-        //printf("Receiver) recvfrom done\n");
-        //printf("====test====\n");
+
         if( -1 == s32_res )
         {
             perror ("Socket receive failed");

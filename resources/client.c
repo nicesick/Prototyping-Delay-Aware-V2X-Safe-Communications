@@ -15,7 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <linux/sockios.h>
@@ -86,12 +85,12 @@ int main(void){
     while( 1 )
     {
         (void) memset (&pu8a_frame[u16_data_off], '\0', ETH_DATA_LEN);
-        printf("Client) memeset done \n");
         
         (void) snprintf ((char *) &pu8a_frame[u16_data_off],
                          ETH_DATA_LEN,
                          "raw packet test, %d", u16_i++);
-        printf("Client) snprintf done \n");
+
+        printf("Client sent a message ""raw packet test, %d""\n", u16_i-1);
 
         s32_res = sendto (s32_sock,
                           pu8a_frame,
