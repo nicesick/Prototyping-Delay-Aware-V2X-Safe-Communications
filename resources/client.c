@@ -23,7 +23,8 @@
 #include <linux/if.h>
 #include <linux/if_arp.h>
 #include <arpa/inet.h>
-#include <MAC.h> /* MAC address */
+#include "mac.h" /* MAC address */
+#include "get_nic_index.h"
 
 int main(void){
     
