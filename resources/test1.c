@@ -1,3 +1,15 @@
+/*
+ Coded by Hyunjae Lee and Jihun Lim
+ 
+ This is a simple implementation for latency evaluation in a V2V network.
+ We assume that all node knows other MAC addresses who want to communicate with. 
+
+ There are a sender that is in the main function and a listener that is run by a thread.
+ The sender propogates a message to the specific node with its MAC address, then,
+
+  *Reference : https://stackoverflow.com/questions/10824827/raw-sockets-communication-over-wifi-receiver-not-able-to-receive-packets
+*/
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -90,23 +102,23 @@ main (void)
     s_dest_addr.sll_addr[7]     = 0x00;/*not used*/
 
 
-    /* print START*/
-    u16_i = 0;
+    // /* print START*/
+    // u16_i = 0;
 
-    printf("s_dest_addr.sll_family    is %hd\n",s_dest_addr.sll_family );
-    printf("s_dest_addr.sll_protocol  is %hd\n",s_dest_addr.sll_protocol );
-    printf("s_dest_addr.sll_ifindex   is %d\n",s_dest_addr.sll_ifindex );
-    printf("s_dest_addr.sll_hatype    is %hd\n",s_dest_addr.sll_hatype );
-    printf("s_dest_addr.sll_pkttype   is %c\n",s_dest_addr.sll_pkttype );
-    printf("s_dest_addr.sll_halen     is %c\n",s_dest_addr.sll_halen );
-    printf("s_dest_addr.sll_addr      is %c\n",s_dest_addr.sll_halen );
+    // printf("s_dest_addr.sll_family    is %hd\n",s_dest_addr.sll_family );
+    // printf("s_dest_addr.sll_protocol  is %hd\n",s_dest_addr.sll_protocol );
+    // printf("s_dest_addr.sll_ifindex   is %d\n",s_dest_addr.sll_ifindex );
+    // printf("s_dest_addr.sll_hatype    is %hd\n",s_dest_addr.sll_hatype );
+    // printf("s_dest_addr.sll_pkttype   is %c\n",s_dest_addr.sll_pkttype );
+    // printf("s_dest_addr.sll_halen     is %c\n",s_dest_addr.sll_halen );
+    // printf("s_dest_addr.sll_addr      is %c\n",s_dest_addr.sll_halen );
 
-    for( u16_i=0; u16_i<sizeof(s_dest_addr.sll_addr)-2; u16_i++ )
-            {
-                printf ("%02x:", s_dest_addr.sll_addr[u16_i]);
-            }
-    u16_i=0;
-     /* print END*/
+    // for( u16_i=0; u16_i<sizeof(s_dest_addr.sll_addr)-2; u16_i++ )
+    //         {
+    //             printf ("%02x:", s_dest_addr.sll_addr[u16_i]);
+    //         }
+    // u16_i=0;
+    //  /* print END*/
 
     /*set the frame header*/
     (void) memcpy (pu8a_frame, gu8a_dest_mac, ETH_ALEN);
@@ -195,23 +207,23 @@ sock_recv_thread ()
     s_src_addr.sll_pkttype      = PACKET_HOST;//PACKET_OTHERHOST;
     s_src_addr.sll_halen        = ETH_ALEN;
     
-    /* print START*/
+    // /* print START*/
     
 
-    printf("s_src_addr.sll_family    is %hd\n",s_src_addr.sll_family );
-    printf("s_src_addr.sll_protocol  is %hd\n",s_src_addr.sll_protocol );
-    printf("s_src_addr.sll_ifindex   is %d\n",s_src_addr.sll_ifindex );
-    printf("s_src_addr.sll_hatype    is %hd\n",s_src_addr.sll_hatype );
-    printf("s_src_addr.sll_pkttype   is %c\n",s_src_addr.sll_pkttype );
-    printf("s_src_addr.sll_halen     is %c\n",s_src_addr.sll_halen );
-    printf("s_src_addr.sll_addr      is ");
-    for( u16_i=0; u16_i<sizeof(s_src_addr.sll_addr)-2; u16_i++ )
-            {
-                printf ("%02x:", s_src_addr.sll_addr[u16_i]);
-            }
-    printf("\n");
+    // printf("s_src_addr.sll_family    is %hd\n",s_src_addr.sll_family );
+    // printf("s_src_addr.sll_protocol  is %hd\n",s_src_addr.sll_protocol );
+    // printf("s_src_addr.sll_ifindex   is %d\n",s_src_addr.sll_ifindex );
+    // printf("s_src_addr.sll_hatype    is %hd\n",s_src_addr.sll_hatype );
+    // printf("s_src_addr.sll_pkttype   is %c\n",s_src_addr.sll_pkttype );
+    // printf("s_src_addr.sll_halen     is %c\n",s_src_addr.sll_halen );
+    // printf("s_src_addr.sll_addr      is ");
+    // for( u16_i=0; u16_i<sizeof(s_src_addr.sll_addr)-2; u16_i++ )
+    //         {
+    //             printf ("%02x:", s_src_addr.sll_addr[u16_i]);
+    //         }
+    // printf("\n");
 
-     /* print END*/
+    //  /* print END*/
 
     s32_res = bind (s32_sock,
                     (struct sockaddr *) &s_src_addr,
