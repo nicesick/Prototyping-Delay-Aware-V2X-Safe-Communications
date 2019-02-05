@@ -24,6 +24,7 @@
 #include <arpa/inet.h>
 #include "mac.h" /* MAC address */
 #include "get_nic_index.h"
+#include "time_micro.h"
 
 int main(void){
     
@@ -34,6 +35,7 @@ int main(void){
     uint16_t            u16_i           = 0;
     uint8_t             *pu8a_frame     = NULL;
     uint8_t             *pu8a_data      = NULL;
+    long curTime;
 
     printf ("Socket raw test\n");
 
@@ -86,11 +88,13 @@ int main(void){
     {
         (void) memset (&pu8a_frame[u16_data_off], '\0', ETH_DATA_LEN);
         
+        curTime = getMicrotime();
+
         (void) snprintf ((char *) &pu8a_frame[u16_data_off],
                          ETH_DATA_LEN,
-                         "raw packet test, %d", u16_i++);
+                         "raw_packet_test %d %ld", u16_i++, curTime);
 
-        printf("Client sent a message ""raw packet test, %d""\n", u16_i-1);
+        printf("Client sent a message %d\n", u16_i-1);
 
         s32_res = sendto (s32_sock,
                           pu8a_frame,
