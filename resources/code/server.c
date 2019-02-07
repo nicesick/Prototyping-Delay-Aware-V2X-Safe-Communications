@@ -28,7 +28,7 @@
 #include "get_nic_index.h"
 #include "time_micro.h"
 
-extern char* NIC_NAME;
+extern char *NIC_NAME;
 extern uint8_t gu8a_src_mac[6];
 extern uint8_t gu8a_dest_mac[6];
 
@@ -41,6 +41,7 @@ int main(void)
     uint8_t *pu8a_frame = NULL;
     uint16_t u16_i = 0;
     long lastTime, temp;
+    float avg = 0;
     char *sArr[3] = {
         NULL,
     };
@@ -71,7 +72,7 @@ int main(void)
     s_src_addr.sll_family = AF_PACKET;
     /*we don't use a protocol above ethernet layer, just use anything here*/
     s_src_addr.sll_protocol = htons(ETH_P_ALL);
-    s_src_addr.sll_ifindex = get_nic_index((char*)NIC_NAME);
+    s_src_addr.sll_ifindex = get_nic_index((char *)NIC_NAME);
     s_src_addr.sll_hatype = ARPHRD_ETHER;
     s_src_addr.sll_pkttype = PACKET_HOST; //PACKET_OTHERHOST;
     s_src_addr.sll_halen = ETH_ALEN;
@@ -169,9 +170,11 @@ int main(void)
                         temp = atol(sArr[u16_i]);
                         lastTime -= temp;
                         printf("with latency %ld (ms) ", lastTime);
+                        avg += lastTime;
                     }
                 }
                 printf("\n");
+                printf("Average of latencies is %f\n ", (avg / sArr[1]));
                 printf("==============================================\n");
             }
         }
