@@ -1,6 +1,6 @@
 #include "get_nic_index.h"
 
-int32_t get_nic_index(uint8_t *nic_card_name)
+int32_t get_nic_index(char *nic_card_name)
 {
     int32_t s32_sock_fd = -1;
     int32_t s32_res = -1;
@@ -18,7 +18,7 @@ int32_t get_nic_index(uint8_t *nic_card_name)
 
     s_ifr.ifr_addr.sa_family = AF_INET;
 
-    strncpy(s_ifr.ifr_name, (char *)nic_card_name, IFNAMSIZ);
+    strncpy(s_ifr.ifr_name, nic_card_name, IFNAMSIZ);
 
     printf("NIC : %s\n", nic_card_name);
     s32_res = ioctl(s32_sock_fd, SIOCGIFINDEX, &s_ifr);
@@ -35,22 +35,24 @@ LABEL_CLEAN_EXIT:
     return (s_ifr.ifr_ifru.ifru_ivalue);
 }
 
-char *get_nic_name()
+void get_nic_name()
 {
     FILE *pFile = NULL;
     int i = 0;
 
     pFile = fopen("configuration.txt", "r");
+
     if (pFile != NULL)
     {
         char strTemp[255];
-
         fgets(strTemp, sizeof(strTemp), pFile);
-        if (strTemp == NULL)
+
+        if (strTemp != NULL)
         {
             char *ptr = strtok(strTemp, ":");
             ptr = strtok(NULL, "\n");
-            NIC_NAME = ptr;
+            NIC_NAME = (char*)malloc(sizeof(char)*strlen(ptr));
+            strcpy(NIC_NAME, ptr);
         }
     }
     else
@@ -58,5 +60,6 @@ char *get_nic_name()
         printf("Incorrect format (NIC_NAME)\n");
         exit;
     }
+
     fclose(pFile);
 }

@@ -26,7 +26,7 @@
 #include "get_nic_index.h"
 #include "time_micro.h"
 
-extern char *NIC_NAME;
+extern char* NIC_NAME;
 extern uint8_t gu8a_src_mac[6];
 extern uint8_t gu8a_dest_mac[6];
 
@@ -43,15 +43,7 @@ int main(void)
     long curTime;
 
     get_mac_addr();
-    printf("test) get_mac_addr = ");
-    for (int i = 0; i < 6; i++)
-    {
-        printf("%x ", gu8a_src_mac[i]);
-    }
-    printf("\n");
-
-    NIC_NAME = get_nic_name();
-    printf("test) NIC_NAME = %s\n", NIC_NAME);
+    get_nic_name();
 
     printf("Socket raw test\n");
 
@@ -82,20 +74,17 @@ int main(void)
     s_dest_addr.sll_family = AF_PACKET;
     /*we don't use a protocol above ethernet layer, just use anything here*/
     s_dest_addr.sll_protocol = htons(ETH_P_ALL);
-    printf("=before sll_ifindex = get_nic_index \n==");
     s_dest_addr.sll_ifindex = get_nic_index((uint8_t *)NIC_NAME);
     s_dest_addr.sll_hatype = ARPHRD_ETHER;
     s_dest_addr.sll_pkttype = PACKET_OTHERHOST; //PACKET_OUTGOING
     s_dest_addr.sll_halen = ETH_ALEN;
     /*MAC - begin*/
-    printf("=before sll_addr = gu8a_dest_mac \n==");
     s_dest_addr.sll_addr[0] = gu8a_dest_mac[0];
     s_dest_addr.sll_addr[1] = gu8a_dest_mac[1];
     s_dest_addr.sll_addr[2] = gu8a_dest_mac[2];
     s_dest_addr.sll_addr[3] = gu8a_dest_mac[3];
     s_dest_addr.sll_addr[4] = gu8a_dest_mac[4];
     s_dest_addr.sll_addr[5] = gu8a_dest_mac[5];
-    printf("done\n");
     /*MAC - end*/
     s_dest_addr.sll_addr[6] = 0x00; /*not used*/
     s_dest_addr.sll_addr[7] = 0x00; /*not used*/

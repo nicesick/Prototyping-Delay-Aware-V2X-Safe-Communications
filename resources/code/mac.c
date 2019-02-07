@@ -9,24 +9,19 @@
 #include <string.h>
 #include "mac.h"
 
-/*our MAC address*/
-uint8_t gu8a_src_mac[6] = {};
-/*other host MAC address*/
-uint8_t gu8a_dest_mac[6] = {};
-
 void get_mac_addr()
 {
     FILE *pFile = NULL;
-    int i, j = 0;
+    int i = 0, j = 0;
 
     pFile = fopen("configuration.txt", "r");
     if (pFile != NULL)
     {
         char strTemp[255];
-
         while (!feof(pFile))
         {
             fgets(strTemp, sizeof(strTemp), pFile);
+
             if (i == 1)
             {
                 char *ptr = strtok(strTemp, ":");
@@ -36,7 +31,6 @@ void get_mac_addr()
                     if (ptr == NULL)
                         break;
                     gu8a_src_mac[j] = (uint8_t)strtol(ptr, NULL, 16);
-                    printf("`%x ", gu8a_src_mac[j]);
                     j++;
                 }
                 printf("\n");
@@ -51,7 +45,6 @@ void get_mac_addr()
                     if (ptr == NULL)
                         break;
                     gu8a_dest_mac[j] = (uint8_t)strtol(ptr, NULL, 16);
-                    printf("`%x ", gu8a_dest_mac[j]);
                     j++;
                 }
                 printf("\n");
@@ -59,7 +52,6 @@ void get_mac_addr()
             }
             i++;
         }
-        printf("out\n");
         fclose(pFile);
     }
     else

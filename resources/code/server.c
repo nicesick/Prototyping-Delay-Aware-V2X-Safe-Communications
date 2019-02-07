@@ -28,11 +28,11 @@
 #include "get_nic_index.h"
 #include "time_micro.h"
 
-extern char *NIC_NAME;
+extern char* NIC_NAME;
 extern uint8_t gu8a_src_mac[6];
 extern uint8_t gu8a_dest_mac[6];
 
-void *main()
+int main(void)
 {
     struct sockaddr_ll s_src_addr;
     int32_t s32_sock = -1;
@@ -45,21 +45,12 @@ void *main()
         NULL,
     };
     int flag = 0;
-    get_mac_addr();
-    printf("test) get_mac_addr = ");
-    for (int i = 0; i < 6; i++)
-    {
-        printf("%x ", gu8a_src_mac[i]);
-    }
-    printf("\n");
 
-    NIC_NAME = get_nic_name();
-    printf("test) NIC_NAME = %s\n", NIC_NAME);
+    get_mac_addr();
+    get_nic_name();
 
     u16_data_off = (uint16_t)(ETH_FRAME_LEN - ETH_DATA_LEN);
-
     pu8a_frame = (uint8_t *)calloc(ETH_FRAME_LEN, 1);
-
     s32_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
     if (-1 == s32_sock)
@@ -67,7 +58,6 @@ void *main()
         perror("Could not create the socket");
         goto LABEL_CLEAN_EXIT;
     }
-
     printf("Server) Socket created\n");
 
     if (NULL == pu8a_frame)
@@ -81,9 +71,7 @@ void *main()
     s_src_addr.sll_family = AF_PACKET;
     /*we don't use a protocol above ethernet layer, just use anything here*/
     s_src_addr.sll_protocol = htons(ETH_P_ALL);
-    printf("=before sll_ifindex = get_nic_index \n==");
-    s_src_addr.sll_ifindex = get_nic_index((uint8_t *)NIC_NAME);
-    printf("done\n");
+    s_src_addr.sll_ifindex = get_nic_index((char*)NIC_NAME);
     s_src_addr.sll_hatype = ARPHRD_ETHER;
     s_src_addr.sll_pkttype = PACKET_HOST; //PACKET_OTHERHOST;
     s_src_addr.sll_halen = ETH_ALEN;
@@ -190,5 +178,5 @@ void *main()
     }
 
 LABEL_CLEAN_EXIT:
-    return (NULL);
+    return EXIT_SUCCESS;
 }
