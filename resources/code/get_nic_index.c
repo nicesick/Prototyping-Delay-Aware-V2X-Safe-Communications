@@ -49,16 +49,14 @@ char *get_nic_name()
         if (strTemp == NULL)
         {
             char *ptr = strtok(strTemp, ":");
-            *ptr = strtok(NULL, "\n");
+            ptr = strtok(NULL, "\n");
             NIC_NAME = ptr;
         }
     }
-}
-fclose(pFile);
-}
-else
-{
-    printf("Incorrect format (NIC_NAME)\n");
-    exit;
-}
+    else
+    {
+        printf("Incorrect format (NIC_NAME)\n");
+        exit;
+    }
+    fclose(pFile);
 }

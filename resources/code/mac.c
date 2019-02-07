@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
+#include "mac.h"
 
 void get_mac_addr()
 {
@@ -52,6 +54,6 @@ void get_mac_addr()
     else
     {
         printf("Incorrect format (MAC_address)\n");
-        exit;
+        exit(0);
     }
 }

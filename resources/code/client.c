@@ -85,7 +85,7 @@ int main(void)
     (void)memcpy(pu8a_frame, gu8a_dest_mac, ETH_ALEN);
     (void)memcpy(pu8a_frame + ETH_ALEN, gu8a_src_mac, ETH_ALEN);
 
-    printf("******Sending data using raw socket over '" NIC_NAME "'\n");
+    printf("******Sending data using raw socket over  %s \n", NIC_NAME);
 
     while (1)
     {
