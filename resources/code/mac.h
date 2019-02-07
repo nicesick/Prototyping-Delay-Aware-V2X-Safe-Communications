@@ -1,12 +1,14 @@
 /*
- This header file contains MAC address
+ This header file to gain MAC_SRC and MAC_DST from configuration.txt
 */
 
 #include <unistd.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /*our MAC address*/
-static uint8_t gu8a_src_mac[6]  = {0x04, 0xf0, 0x21, 0x36, 0x1b, 0x91};
-
+uint8_t gu8a_src_mac[6] = {};
 /*other host MAC address*/
-static uint8_t gu8a_dest_mac[6] = {0x04, 0xf0, 0x21, 0x36, 0x1b, 0x91};
+uint8_t gu8a_dest_mac[6] = {};
+
+void get_mac_addr();
