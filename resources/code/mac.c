@@ -36,8 +36,10 @@ void get_mac_addr()
                     if (ptr == NULL)
                         break;
                     gu8a_src_mac[j] = (uint8_t)strtol(ptr, NULL, 16);
+                    printf("`%x ", gu8a_src_mac[j]);
                     j++;
                 }
+                printf("\n");
                 j = 0;
             }
             else if (i == 2)
@@ -49,12 +51,15 @@ void get_mac_addr()
                     if (ptr == NULL)
                         break;
                     gu8a_dest_mac[j] = (uint8_t)strtol(ptr, NULL, 16);
+                    printf("`%x ", gu8a_dest_mac[j]);
                     j++;
                 }
+                printf("\n");
                 j = 0;
             }
             i++;
         }
+        printf("out\n");
         fclose(pFile);
     }
     else

@@ -9,7 +9,7 @@
 #include <linux/if.h>
 
 // #define NIC_NAME "wlp4s0"
-extern char *NIC_NAME;
+char *NIC_NAME = "";
 
 int32_t get_nic_index(uint8_t *nic_card_name);
 char *get_nic_name();

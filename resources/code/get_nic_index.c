@@ -1,7 +1,5 @@
 #include "get_nic_index.h"
 
-char *NIC_NAME = "";
-
 int32_t get_nic_index(uint8_t *nic_card_name)
 {
     int32_t s32_sock_fd = -1;

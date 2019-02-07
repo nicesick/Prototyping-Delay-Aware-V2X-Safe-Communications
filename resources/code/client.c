@@ -26,6 +26,10 @@
 #include "get_nic_index.h"
 #include "time_micro.h"
 
+extern char *NIC_NAME;
+extern uint8_t gu8a_src_mac[6];
+extern uint8_t gu8a_dest_mac[6];
+
 int main(void)
 {
 
