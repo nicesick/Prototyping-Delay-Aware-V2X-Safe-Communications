@@ -42,7 +42,15 @@ void *main()
     };
     int flag = 0;
     get_mac_addr();
-    get_nic_name();
+    printf("test) get_mac_addr = ");
+    for (int i = 0; i < 6; i++)
+    {
+        printf("%x ", gu8a_src_mac[i]);
+    }
+    printf("\n");
+
+    NIC_NAME = get_nic_name();
+    printf("test) NIC_NAME = %s\n", NIC_NAME);
 
     u16_data_off = (uint16_t)(ETH_FRAME_LEN - ETH_DATA_LEN);
 
@@ -69,7 +77,9 @@ void *main()
     s_src_addr.sll_family = AF_PACKET;
     /*we don't use a protocol above ethernet layer, just use anything here*/
     s_src_addr.sll_protocol = htons(ETH_P_ALL);
+    printf("=before sll_ifindex = get_nic_index \n==");
     s_src_addr.sll_ifindex = get_nic_index((uint8_t *)NIC_NAME);
+    printf("done\n");
     s_src_addr.sll_hatype = ARPHRD_ETHER;
     s_src_addr.sll_pkttype = PACKET_HOST; //PACKET_OTHERHOST;
     s_src_addr.sll_halen = ETH_ALEN;
