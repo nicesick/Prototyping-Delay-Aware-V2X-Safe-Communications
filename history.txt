@@ -92,10 +92,11 @@
 #### 1. Implementation for seperate client and server
 
 ### 02-05-2019
-#### 1. 
+#### 1. Implementation the way to evaluate latency.
 
 ### 02-06-2019
-#### 1. 
+#### 1. Create makefile
+#### 2. Revise codes
 
 ### 02-07-2019
 #### 1. 
