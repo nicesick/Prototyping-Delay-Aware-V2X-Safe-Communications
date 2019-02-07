@@ -38,6 +38,9 @@ int main(void)
     uint8_t *pu8a_data = NULL;
     long curTime;
 
+    get_mac_addr();
+    get_nic_name();
+
     printf("Socket raw test\n");
 
     (void)memset(&s_dest_addr, 0, sizeof(s_dest_addr));

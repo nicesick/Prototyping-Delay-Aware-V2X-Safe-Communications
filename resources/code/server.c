@@ -41,6 +41,8 @@ void *main()
         NULL,
     };
     int flag = 0;
+    get_mac_addr();
+    get_nic_name();
 
     u16_data_off = (uint16_t)(ETH_FRAME_LEN - ETH_DATA_LEN);
 
