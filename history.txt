@@ -99,7 +99,26 @@
 #### 2. Revise codes
 
 ### 02-07-2019
-#### 1. 
+#### 1. Complete implementation that we can configure parameters in the configuration file 
+	and it will be adapted automatically though 'make' command.
 
 ### 02-08-2019
+#### 1. Summarizing and organizing.
+
+=======
+
+*6th week (021119 - 021519)
+### 02-11-2019
 #### 1. 
+
+### 02-12-2019
+#### 1.
+
+### 02-13-2019
+#### 1.
+
+### 02-14-2019
+#### 1.
+
+### 02-15-2019
+#### 1.
