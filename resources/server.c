@@ -24,8 +24,9 @@
 #include <linux/if.h>
 #include <linux/if_arp.h>
 #include <arpa/inet.h>
-
+#include "mac.h"
 #include "get_nic_index.h"
+#include "time_micro.h"
 
 void* main() {
 struct sockaddr_ll  s_src_addr;
@@ -34,6 +35,9 @@ struct sockaddr_ll  s_src_addr;
     uint16_t            u16_data_off    = 0;
     uint8_t             *pu8a_frame     = NULL;
     uint16_t u16_i = 0;
+    long lastTime, temp;
+    char *sArr[3] = {NULL,};
+    int flag = 0;
 
     u16_data_off = (uint16_t) (ETH_FRAME_LEN - ETH_DATA_LEN);
 
@@ -104,7 +108,7 @@ struct sockaddr_ll  s_src_addr;
         else
         {
             u16_i = 0;
-
+            printf("==============================================\n");
             printf ("Received data from ");
 
             for( u16_i=0; u16_i<sizeof(s_sender_addr.sll_addr)-2; u16_i++ )
@@ -112,9 +116,50 @@ struct sockaddr_ll  s_src_addr;
                 printf ("%02x:", s_sender_addr.sll_addr[u16_i]);
             }
 
-            printf ("\t");
+            printf ("\n");
+            char *str = strtok(&pu8a_frame[u16_data_off]," ");
+            u16_i = 0;
 
-            printf ("Received data %s\n\n", &pu8a_frame[u16_data_off]);
+            printf ("Received data ");
+            
+            flag = 0;
+            for( u16_i=0; u16_i<sizeof(s_sender_addr.sll_addr)-2; u16_i++ )
+            {
+                if( s_sender_addr.sll_addr[u16_i] != gu8a_src_mac[u16_i]){
+                    flag = 1;
+                    break;
+                }
+            }
+
+            if(flag == 1){
+                printf ("Received data %s\n\n", &pu8a_frame[u16_data_off]);
+            }else{
+                u16_i = 0;     
+            while(str != NULL){
+                sArr[u16_i] = str;
+                u16_i++;
+
+                str = strtok(NULL," ");
+            }
+
+            for(u16_i = 0; u16_i < 3; u16_i++){
+                if(u16_i == 0){
+                    printf("%s ",sArr[u16_i]);
+                }
+                else if(u16_i == 1){
+                    printf("%s ",sArr[u16_i]);
+                }
+                else if(u16_i == 2)
+                {
+                    lastTime = getMicrotime();
+                    temp = atol(sArr[u16_i]);
+                    lastTime -= temp;
+                    printf("with latency %ld (ms) ",lastTime);
+                }           
+            }
+            printf("\n");
+            printf("==============================================\n");
+            }
         }
 
     }
