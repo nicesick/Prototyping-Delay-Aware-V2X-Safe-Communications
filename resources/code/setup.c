@@ -16,16 +16,18 @@ int main()
 {
     char str[255];
     get_bandwidth_frequency();
+    get_nic_name();
 
-    sprintf(str, "ip link set %s down", NIC_NAME);
+    sprintf(str, "/bin/bash -c 'ip link set %s down'", NIC_NAME);
     system(str);
-    sprintf(str, "iw dev %s set type ocb", NIC_NAME);
+
+    sprintf(str, "/bin/bash -c 'iw dev %s set type ocb'", NIC_NAME);
     system(str);
-    sprintf(str, "ip link set %s down", NIC_NAME);
+    sprintf(str, "/bin/bash -c 'ip link set %s up'", NIC_NAME);
     system(str);
-    sprintf(str, "iw dev %s ocb join %d %dMHZ", NIC_NAME, bandwidth, frequency);
+    sprintf(str, "/bin/bash -c 'iw dev %s ocb join %d %dMHZ'", NIC_NAME, bandwidth, frequency);
     system(str);
-    sprintf(str, "iw dev %s info", NIC_NAME);
+    sprintf(str, "/bin/bash -c 'iw dev %s info'", NIC_NAME);
     system(str);
 
     return 0;
@@ -56,7 +58,7 @@ void get_bandwidth_frequency()
             if (bandwidth < 0 || bandwidth > 10000)
             {
                 printf("Incorrect format (bandwidth)\n");
-                exit();
+                exit(0);
             }
         }
 
@@ -71,7 +73,7 @@ void get_bandwidth_frequency()
             if (frequency < 0 || frequency > 300)
             {
                 printf("Incorrect format (frequency)\n");
-                exit();
+                exit(0);
             }
         }
     }

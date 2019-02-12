@@ -174,7 +174,7 @@ int main(void)
                     }
                 }
                 printf("\n");
-                printf("Average of latencies is %f\n ", (avg / sArr[1]));
+                printf("Average of latencies is %f\n ", (avg / atoi(sArr[1])));
                 printf("==============================================\n");
             }
         }
