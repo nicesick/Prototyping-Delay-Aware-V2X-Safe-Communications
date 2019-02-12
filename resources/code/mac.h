@@ -4,7 +4,9 @@
 
 #include <unistd.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 /*our MAC address*/
 uint8_t gu8a_src_mac[6];

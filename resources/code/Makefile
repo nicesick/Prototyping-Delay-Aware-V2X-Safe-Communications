@@ -1,9 +1,15 @@
+setup: setup.o get_nic_index.o
+	gcc -o setup setup.o get_nic_index.o
+
 server: server.o mac.o get_nic_index.o
 	gcc -o server server.o mac.o get_nic_index.o
 
 client: client.o mac.o get_nic_index.o
 	gcc -o client client.o mac.o get_nic_index.o
 
+setup.o: setup.c setup.h get_nic_index.h
+	gcc -c -o setup.o setup.c
+	
 server.o: time_micro.h mac.h get_nic_index.h server.c
 	gcc -c -o server.o server.c
 

@@ -8,7 +8,7 @@
 #include <linux/sockios.h>
 #include <linux/if.h>
 
-char* NIC_NAME;
+char *NIC_NAME;
 
 int32_t get_nic_index(char *nic_card_name);
 void get_nic_name();
