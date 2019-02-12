@@ -1,4 +1,4 @@
-# Research-Lab
+# Prototyping Delay-Aware V2X Safe Communications
 
 Members
  - Hyunjae Lee, Chung-Ang University, South Korea
