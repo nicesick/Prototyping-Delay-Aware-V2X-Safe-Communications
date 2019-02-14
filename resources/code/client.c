@@ -26,12 +26,33 @@
 #include "get_nic_index.h"
 #include "time_micro.h"
 
+/*
+- EXTERN VARIABLE
+
+NIC_NAME : save the value NIC_NAME using the function "get_nic_name()" from get_nic_index.h
+gu8a_src_mac : save the value SRC_MAC using the function "get_mac_addr()" from mac.h
+gu8a_dest_mac : save the value DEST_MAC using the function "get_mac_addr()" from mac.h
+*/
+
 extern char* NIC_NAME;
 extern uint8_t gu8a_src_mac[6];
 extern uint8_t gu8a_dest_mac[6];
 
 int main(void)
 {
+	/*
+	- LOCAL VARIABLE
+
+	s_dest_addr : save the value DEST_ADDR and protocols
+	s32_sock : save the socket file descriptor
+	s32_res : save the value that check the socket's status
+	u16_data_off : save the length of frame header; in this case, the length will be 14
+	u16_i : save the index for the message's count
+	pu8a_frame : save the address of frame
+	pu8a_data : save the address of payload
+
+	curTime : save the current time for analyzing
+	*/
 
     struct sockaddr_ll s_dest_addr;
     int32_t s32_sock = -1;
@@ -42,11 +63,29 @@ int main(void)
     uint8_t *pu8a_data = NULL;
     long curTime;
 
+	/*
+	get_mac_addr() : fill the SRC_MAC and DEST_MAC value to gu8a_src_mac, gu8a_dest_mac array
+	get_nice_name() : fill the NIC_NAME value to NIC_NAME
+	*/
     get_mac_addr();
     get_nic_name();
 
     printf("Socket raw test\n");
 
+	/*
+	this part is creating frame and socket for sending the message
+	there are some variable to save the value of frame and socket
+
+	pu8a_frame and pu8a_data variables are linked to each address of frame and payload
+
+	pu8a_frame                      pu8a_data
+	v                               v
+	 ==============================================================
+	| src_mac | dest_mac | protocol |       payload                |
+	 ==============================================================
+
+	
+	*/
     (void)memset(&s_dest_addr, 0, sizeof(s_dest_addr));
     pu8a_frame = (uint8_t *)calloc(ETH_FRAME_LEN, 1);
 
@@ -71,6 +110,13 @@ int main(void)
 
     sleep(1);
 
+	/*
+	this part is saving the values for target socket
+	
+	when the receiver will receive the message, 
+	the receiver will check this message is for his machine or not using this infomation
+	*/
+
     s_dest_addr.sll_family = AF_PACKET;
     /*we don't use a protocol above ethernet layer, just use anything here*/
     s_dest_addr.sll_protocol = htons(ETH_P_ALL);
@@ -88,6 +134,21 @@ int main(void)
     /*MAC - end*/
     s_dest_addr.sll_addr[6] = 0x00; /*not used*/
     s_dest_addr.sll_addr[7] = 0x00; /*not used*/
+
+	/*
+	this part is preparing the message and sending the message to target
+	we put the timestamp value for analyzing the latency
+	if the receiver will get this message, the receiver will analyze the latency using this information
+
+	and this function will be executed every 1 second
+
+	pu8a_frame                      pu8a_data
+	v                               v
+	 ==============================================================
+	| src_mac | dest_mac | protocol | "string + index + timestamp" |
+	 ==============================================================
+
+	*/
 
     (void)memcpy(pu8a_frame, gu8a_dest_mac, ETH_ALEN);
     (void)memcpy(pu8a_frame + ETH_ALEN, gu8a_src_mac, ETH_ALEN);

@@ -28,12 +28,48 @@
 #include "get_nic_index.h"
 #include "time_micro.h"
 
+/*
+- EXTERN VARIABLE
+
+NIC_NAME : save the value NIC_NAME using the function "get_nic_name()" from get_nic_index.h
+gu8a_src_mac : save the value SRC_MAC using the function "get_mac_addr()" from mac.h
+gu8a_dest_mac : save the value DEST_MAC using the function "get_mac_addr()" from mac.h
+*/
+
 extern char *NIC_NAME;
 extern uint8_t gu8a_src_mac[6];
 extern uint8_t gu8a_dest_mac[6];
 
 int main(void)
 {
+	/*
+	- LOCAL VARIABLE
+
+	s_src_addr : save the value SRC_ADDR and protocols
+	s32_sock : save the socket file descriptor
+	s32_res : save the value that check the socket's status
+	u16_data_off : save the length of frame header; in this case, the length will be 14
+	pu8a_frame : save the address of frame
+	u16_i : save the index for the message's count
+
+	lastTime : save the current time for analyzing
+	temp : save the time from the sender
+	avg : save the average latency values
+
+	sArr : parse and save the each values from the message
+	sArr[0] : save raw_socket_test string
+	sArr[1] : save the index of the message
+	sArr[2] : save the sending time of the message
+
+	flag :  if the message is from the client we are executing, the flag will be 0
+			otherwise, the flag will be 1
+
+		case the flag == 1:
+			just printing the message
+		case the flag == 0:
+			parse and save the each values to sArr array
+	*/
+
     struct sockaddr_ll s_src_addr;
     int32_t s32_sock = -1;
     int32_t s32_res = -1;
@@ -47,8 +83,29 @@ int main(void)
     };
     int flag = 0;
 
+	/*
+	get_mac_addr() : fill the SRC_MAC and DEST_MAC value to gu8a_src_mac, gu8a_dest_mac array
+	get_nice_name() : fill the NIC_NAME value to NIC_NAME
+	*/
+
     get_mac_addr();
     get_nic_name();
+
+	/*
+	this part is creating frame and socket for receiving the message
+	there are some variable to save the value of frame and socket
+
+	pu8a_frame variables is linked to address of frame
+	u16_data_off save the length value of the frame header
+
+	pu8a_frame                      u16_data_off
+	v ----------------------------- v                               
+	==============================================================
+	| src_mac | dest_mac | protocol |       payload                |
+	==============================================================
+
+
+	*/
 
     u16_data_off = (uint16_t)(ETH_FRAME_LEN - ETH_DATA_LEN);
     pu8a_frame = (uint8_t *)calloc(ETH_FRAME_LEN, 1);
@@ -69,6 +126,13 @@ int main(void)
 
     (void)memset(&s_src_addr, 0, sizeof(s_src_addr));
 
+	/*
+	this part is saving the values for target socket
+
+	when the receiver will receive the message,
+	the receiver will check this message is for his machine or not using this infomation
+	*/
+
     s_src_addr.sll_family = AF_PACKET;
     /*we don't use a protocol above ethernet layer, just use anything here*/
     s_src_addr.sll_protocol = htons(ETH_P_ALL);
@@ -88,6 +152,41 @@ int main(void)
     }
 
     printf("Socket bind successful\n");
+
+	/*
+	this part is preparing the message and receiving the message from target
+	we get the timestamp value for analyzing the latency
+	if the receiver will get this message, the receiver will analyze the latency using this information
+
+	pu8a_frame                      
+	v                               
+	==============================================================
+	| src_mac | dest_mac | protocol | "string + index + timestamp" |
+	==============================================================
+
+	there are some step for checking the message
+	
+	for example, we can assume there are two MAC address
+	target sender's MAC address : ff:ff:ff:ff:ff:ff
+	the MAC address we received : 00:00:00:00:00:00
+
+	we just check those MAC address is same or not
+
+	if the mac address is same each other, the flag will be 0
+	otherwise, the flag will be 1
+
+	if the flag is 0, we just print the message
+	if the flag is 1, we have to parse and save the each values to sArr array
+
+	the each values will be saved in each sArr container
+	sArr[0] = raw_socket_test
+	sArr[1] = the index of the message
+	sArr[2] = the sending time of the message
+
+	finally we can calculate the latency between currentTime and the sending time
+	the latency's result will be currentTime - the sending time
+	
+	*/
 
     while (1)
     {
