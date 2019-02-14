@@ -1,6 +1,6 @@
 ﻿
 *. Constraint
-	It will be errors when the board is not in the same network with the host pc.
+	You will get errors when your board doesn't belong in the same network with your host pc.
 
 0. Preparation
 
