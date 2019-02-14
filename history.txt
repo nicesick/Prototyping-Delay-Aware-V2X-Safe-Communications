@@ -109,16 +109,16 @@
 
 *6th week (021119 - 021519)
 ### 02-11-2019
-#### 1. 
+#### 1. Meeting with professors
 
 ### 02-12-2019
-#### 1.
+#### 1. Add setup makefile
 
 ### 02-13-2019
-#### 1.
+#### 1. Revise code to use gettime function
 
 ### 02-14-2019
-#### 1.
+#### 1. presentation preparation.
 
 ### 02-15-2019
 #### 1.
