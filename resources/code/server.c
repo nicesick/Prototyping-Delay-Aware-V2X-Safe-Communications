@@ -85,7 +85,7 @@ int main(void)
 
 	/*
 	get_mac_addr() : fill the SRC_MAC and DEST_MAC value to gu8a_src_mac, gu8a_dest_mac array
-	get_nice_name() : fill the NIC_NAME value to NIC_NAME
+	get_nic_name() : fill the NIC_NAME value to NIC_NAME
 	*/
 
     get_mac_addr();
@@ -186,6 +186,8 @@ int main(void)
 	finally we can calculate the latency between currentTime and the sending time
 	the latency's result will be currentTime - the sending time
 	
+	the average variable adds the latency's value
+	and will be devided by sArr[1] value
 	*/
 
     while (1)
