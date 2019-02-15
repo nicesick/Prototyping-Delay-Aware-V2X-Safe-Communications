@@ -24,9 +24,9 @@
 #include <linux/if.h>
 #include <linux/if_arp.h>
 #include <arpa/inet.h>
+#include <time.h>
 #include "mac.h"
 #include "get_nic_index.h"
-#include "time_micro.h"
 
 /*
 - EXTERN VARIABLE
@@ -76,8 +76,9 @@ int main(void)
     uint16_t u16_data_off = 0;
     uint8_t *pu8a_frame = NULL;
     uint16_t u16_i = 0;
-    long lastTime, temp;
-    float avg = 0;
+    struct timespec lastTime;
+    long temp;
+    double avg = 0;
     char *sArr[3] = {
         NULL,
     };
@@ -98,7 +99,7 @@ int main(void)
 	pu8a_frame variables is linked to address of frame
 	u16_data_off save the length value of the frame header
 
-	pu8a_frame                      u16_data_off
+	pu8a_frame                      pu8a_frame[u16_data_off]
 	v ----------------------------- v                               
 	==============================================================
 	| src_mac | dest_mac | protocol |       payload                |
@@ -267,15 +268,16 @@ int main(void)
                     }
                     else if (u16_i == 2)
                     {
-                        lastTime = getMicrotime();
+                        clock_gettime(CLOCK_REALTIME, &lastTime);
                         temp = atol(sArr[u16_i]);
-                        lastTime -= temp;
-                        printf("with latency %ld (ms) ", lastTime);
-                        avg += lastTime;
+                        lastTime.tv_nsec -= temp;
+                        if(lastTime.tv_nsec < 0) lastTime.tv_nsec += 1000000000;
+                        printf("with latency %ld (ns) ", lastTime.tv_nsec);
+                        avg += lastTime.tv_nsec;
                     }
                 }
                 printf("\n");
-                printf("Average of latencies is %f\n ", (avg / atoi(sArr[1])));
+                printf("Average of latencies is %.2lf\n", (avg / (atoi(sArr[1]) + 1)));
                 printf("==============================================\n");
             }
         }

@@ -22,9 +22,9 @@
 #include <linux/if.h>
 #include <linux/if_arp.h>
 #include <arpa/inet.h>
+#include <time.h>
 #include "mac.h" /* MAC address */
 #include "get_nic_index.h"
-#include "time_micro.h"
 
 /*
 - EXTERN VARIABLE
@@ -61,8 +61,8 @@ int main(void)
     uint16_t u16_i = 0;
     uint8_t *pu8a_frame = NULL;
     uint8_t *pu8a_data = NULL;
-    long curTime;
-
+    //long curTime;
+    struct timespec curTime;
 	/*
 	get_mac_addr() : fill the SRC_MAC and DEST_MAC value to gu8a_src_mac, gu8a_dest_mac array
 	get_nice_name() : fill the NIC_NAME value to NIC_NAME
@@ -159,11 +159,11 @@ int main(void)
     {
         (void)memset(&pu8a_frame[u16_data_off], '\0', ETH_DATA_LEN);
 
-        curTime = getMicrotime();
+        clock_gettime(CLOCK_REALTIME, &curTime);
 
         (void)snprintf((char *)&pu8a_frame[u16_data_off],
                        ETH_DATA_LEN,
-                       "raw_packet_test %d %ld", u16_i++, curTime);
+                       "raw_packet_test %d %ld", u16_i++, curTime.tv_nsec);
 
         printf("Client sent a message %d\n", u16_i - 1);
 
