@@ -73,3 +73,6 @@ tar -xzf kernel.tgz
 
 htop
 - 현재 호스트 머신의 하드웨어 정보를 출력해준다.
+
+sudo ip -s link show dev WLAN
+- 하드웨어를 통해 보내고 받은 패킷에 대한 정보를 출력해준다.
