@@ -42,7 +42,7 @@ extern uint8_t gu8a_dest_mac[6];
 
 int main(void)
 {
-	/*
+    /*
 	- LOCAL VARIABLE
 
 	s_src_addr : save the value SRC_ADDR and protocols
@@ -84,7 +84,7 @@ int main(void)
     };
     int flag = 0;
 
-	/*
+    /*
 	get_mac_addr() : fill the SRC_MAC and DEST_MAC value to gu8a_src_mac, gu8a_dest_mac array
 	get_nic_name() : fill the NIC_NAME value to NIC_NAME
 	*/
@@ -92,7 +92,7 @@ int main(void)
     get_mac_addr();
     get_nic_name();
 
-	/*
+    /*
 	this part is creating frame and socket for receiving the message
 	there are some variable to save the value of frame and socket
 
@@ -127,7 +127,7 @@ int main(void)
 
     (void)memset(&s_src_addr, 0, sizeof(s_src_addr));
 
-	/*
+    /*
 	this part is saving the values for target socket
 
 	when the receiver will receive the message,
@@ -154,7 +154,7 @@ int main(void)
 
     printf("Socket bind successful\n");
 
-	/*
+    /*
 	this part is preparing the message and receiving the message from target
 	we get the timestamp value for analyzing the latency
 	if the receiver will get this message, the receiver will analyze the latency using this information
@@ -268,12 +268,34 @@ int main(void)
                     }
                     else if (u16_i == 2)
                     {
-                        clock_gettime(CLOCK_MONOTONIC_RAW, &lastTime);
                         temp = atol(sArr[u16_i]);
-                        lastTime.tv_nsec -= temp;
-                        if(lastTime.tv_nsec < 0) lastTime.tv_nsec += 1000000000;
-                        printf("with latency %ld (ns) ", lastTime.tv_nsec);
-                        avg += lastTime.tv_nsec;
+                        printf("msg sent at %ld (ns)\n", temp);
+                        clock_gettime(CLOCK_MONOTONIC_RAW, &lastTime);
+
+                        (void)snprintf((char *)&pu8a_frame[u16_data_off],
+                                       ETH_DATA_LEN,
+                                       "Sending_back_from_msg %d %ld", u16_i++, lastTime.tv_nsec);
+
+                        printf("Server sent back a message corresponding to %d\n", u16_i - 1);
+
+                        // temp = atol(sArr[u16_i]);
+                        // lastTime.tv_nsec -= temp;
+                        // if(lastTime.tv_nsec < 0) lastTime.tv_nsec += 1000000000;
+                        // printf("with latency %ld (ns) ", lastTime.tv_nsec);
+                        // avg += lastTime.tv_nsec;
+
+                        s32_res = sendto(s32_sock,
+                                         pu8a_frame,
+                                         ETH_FRAME_LEN,
+                                         0,
+                                         (struct sockaddr *)&s_dest_addr,
+                                         sizeof(s_dest_addr));
+
+                        if (-1 == s32_res)
+                        {
+                            perror("Socket send failed");
+                            goto LABEL_CLEAN_EXIT;
+                        }
                     }
                 }
                 printf("\n");
