@@ -141,6 +141,13 @@ int main(void)
     s_src_addr.sll_hatype = ARPHRD_ETHER;
     s_src_addr.sll_pkttype = PACKET_HOST; //PACKET_OTHERHOST;
     s_src_addr.sll_halen = ETH_ALEN;
+    
+    s_src_addr.sll_addr[0] = gu8a_src_mac[0];
+    s_src_addr.sll_addr[1] = gu8a_src_mac[1];
+    s_src_addr.sll_addr[2] = gu8a_src_mac[2];
+    s_src_addr.sll_addr[3] = gu8a_src_mac[3];
+    s_src_addr.sll_addr[4] = gu8a_src_mac[4];
+    s_src_addr.sll_addr[5] = gu8a_src_mac[5];
 
     s32_res = bind(s32_sock,
                    (struct sockaddr *)&s_src_addr,
@@ -243,7 +250,7 @@ int main(void)
 
             if (flag == 1)
             {
-                printf("Received data %s\n\n", &pu8a_frame[u16_data_off]);
+                printf("Server) Received data %s\n\n", &pu8a_frame[u16_data_off]);
             }
             else
             {
@@ -270,13 +277,16 @@ int main(void)
                     {
                         temp = atol(sArr[u16_i]);
                         printf("msg sent at %ld (ns)\n", temp);
+
+                        (void)memcpy(pu8a_frame, gu8a_src_mac, ETH_ALEN);
+    (void)memcpy(pu8a_frame + ETH_ALEN, gu8a_dest_mac, ETH_ALEN);
+
+
                         clock_gettime(CLOCK_MONOTONIC_RAW, &lastTime);
 
                         (void)snprintf((char *)&pu8a_frame[u16_data_off],
                                        ETH_DATA_LEN,
-                                       "Sending_back_from_msg %d %ld", atol(sArr[u16_i - 1]), lastTime.tv_nsec);
-
-                        printf("Server sent back a message corresponding to %d\n", u16_i - 2);
+                                       "Sending_back_from_msg %d %ld", atoi(sArr[u16_i - 1]), lastTime.tv_nsec);
 
                         // temp = atol(sArr[u16_i]);
                         // lastTime.tv_nsec -= temp;

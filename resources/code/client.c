@@ -65,7 +65,6 @@ int main(void)
     uint8_t *pu8a_frame = NULL;
     uint8_t *pu8a_data = NULL;
     pthread_t ul_recv_thd_id  = -1;
-
     //long curTime;
     struct timespec curTime;
 	/*
@@ -124,10 +123,11 @@ int main(void)
 	the receiver will check this message is for his machine or not using this infomation
 	*/
 
+
     s_dest_addr.sll_family = AF_PACKET;
     /*we don't use a protocol above ethernet layer, just use anything here*/
     s_dest_addr.sll_protocol = htons(ETH_P_ALL);
-    s_dest_addr.sll_ifindex = get_nic_index((uint8_t *)NIC_NAME);
+    s_dest_addr.sll_ifindex = get_nic_index((char *) NIC_NAME);
     s_dest_addr.sll_hatype = ARPHRD_ETHER;
     s_dest_addr.sll_pkttype = PACKET_OTHERHOST; //PACKET_OUTGOING
     s_dest_addr.sll_halen = ETH_ALEN;
@@ -210,7 +210,14 @@ sock_recv_thread ()
     uint16_t            u16_data_off    = 0;
     uint8_t             *pu8a_frame     = NULL;
     uint16_t u16_i = 0;
+    int flag;
+    char *sArr[3] = {
+        NULL,
+    };
 
+    struct timespec lastTime;
+    long temp;
+    
     printf ("Socket receive thread\n");
 
     u16_data_off = (uint16_t) (ETH_FRAME_LEN - ETH_DATA_LEN);
@@ -237,7 +244,7 @@ sock_recv_thread ()
     s_src_addr.sll_family       = AF_PACKET;
     /*we don't use a protocol above ethernet layer, just use anything here*/
     s_src_addr.sll_protocol     = htons(ETH_P_ALL);
-    s_src_addr.sll_ifindex      = get_nic_index ((uint8_t *) NIC_NAME);
+    s_src_addr.sll_ifindex      = get_nic_index ((char *) NIC_NAME);
     s_src_addr.sll_hatype       = ARPHRD_ETHER;
     s_src_addr.sll_pkttype      = PACKET_HOST;//PACKET_OTHERHOST;
     s_src_addr.sll_halen        = ETH_ALEN;
@@ -261,11 +268,6 @@ sock_recv_thread ()
 
         (void) memset (&s_sender_addr, 0, sizeof (s_sender_addr));
 
-        for(int i = 0; i<8; i++){
-           printf ("%02x:", s_sender_addr.sll_addr[i]);
-        }
-        printf("\n");
-        
         s32_res = recvfrom (s32_sock,
                             pu8a_frame,
                             ETH_FRAME_LEN,
@@ -273,6 +275,7 @@ sock_recv_thread ()
                             (struct sockaddr *) &s_sender_addr,
                             &u32_sender_addr_len);
 
+        
         if( -1 == s32_res )
         {
             perror ("Socket receive failed");
@@ -285,17 +288,58 @@ sock_recv_thread ()
         else
         {
             u16_i = 0;
-
             printf ("Received data from ");
+
+
+            char *str = strtok(&pu8a_frame[u16_data_off], " ");
+
+            flag = 0;
+            for (u16_i = 0; u16_i < sizeof(s_sender_addr.sll_addr) - 2; u16_i++)
+            {
+                if (s_sender_addr.sll_addr[u16_i] != gu8a_dest_mac[u16_i])
+                {
+                    flag = 1;
+                    break;
+                }
+            }
+
+            if (flag == 0)
+            {
 
             for( u16_i=0; u16_i<sizeof(s_sender_addr.sll_addr)-2; u16_i++ )
             {
                 printf ("%02x:", s_sender_addr.sll_addr[u16_i]);
             }
+            printf("\n");
 
-            printf ("\t");
+                u16_i = 0;
+                while (str != NULL)
+                {
+                    sArr[u16_i] = str;
+                    u16_i++;
 
-            printf ("Received data %s\n\n", &pu8a_frame[u16_data_off]);
+                    str = strtok(NULL, " ");
+                }
+
+                for (u16_i = 0; u16_i < 3; u16_i++)
+                {
+                    if (u16_i == 0)
+                    {
+                        printf("%s ", sArr[u16_i]);
+                    }
+                    else if (u16_i == 1)
+                    {
+                        printf("%s ", sArr[u16_i]);
+                    }
+                    else if (u16_i == 2)
+                    {
+                        temp = atol(sArr[u16_i]);
+                        printf("\nClient ) msg sent at %ld (ns)\n", temp);
+                        clock_gettime(CLOCK_MONOTONIC_RAW, &lastTime);
+                        printf(" LATENCY : %ld\n",lastTime.tv_nsec - temp);
+                    }
+                }
+            }
         }
 
     }
