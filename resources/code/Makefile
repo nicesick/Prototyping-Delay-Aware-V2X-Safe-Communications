@@ -10,10 +10,10 @@ client: client.o mac.o get_nic_index.o
 setup.o: setup.c setup.h get_nic_index.h
 	gcc -c -o setup.o setup.c
 	
-server.o: time_micro.h mac.h get_nic_index.h server.c
+server.o: mac.h get_nic_index.h server.c
 	gcc -c -o server.o server.c
 
-client.o: time_micro.h mac.h get_nic_index.h client.c
+client.o: mac.h get_nic_index.h client.c
 	gcc -c -o client.o client.c
 
 mac.o: mac.h mac.c

@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "get_nic_index.h": "c"
+        "get_nic_index.h": "c",
+        "time.h": "c"
     }
 }
