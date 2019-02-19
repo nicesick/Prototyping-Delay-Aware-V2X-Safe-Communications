@@ -268,7 +268,7 @@ int main(void)
                     }
                     else if (u16_i == 2)
                     {
-                        clock_gettime(CLOCK_REALTIME, &lastTime);
+                        clock_gettime(CLOCK_MONOTONIC_RAW, &lastTime);
                         temp = atol(sArr[u16_i]);
                         lastTime.tv_nsec -= temp;
                         if(lastTime.tv_nsec < 0) lastTime.tv_nsec += 1000000000;
