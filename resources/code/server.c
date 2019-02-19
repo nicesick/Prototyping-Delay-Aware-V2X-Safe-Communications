@@ -274,9 +274,9 @@ int main(void)
 
                         (void)snprintf((char *)&pu8a_frame[u16_data_off],
                                        ETH_DATA_LEN,
-                                       "Sending_back_from_msg %d %ld", u16_i++, lastTime.tv_nsec);
+                                       "Sending_back_from_msg %d %ld", atol(sArr[u16_i - 1]), lastTime.tv_nsec);
 
-                        printf("Server sent back a message corresponding to %d\n", u16_i - 1);
+                        printf("Server sent back a message corresponding to %d\n", u16_i - 2);
 
                         // temp = atol(sArr[u16_i]);
                         // lastTime.tv_nsec -= temp;
@@ -288,8 +288,8 @@ int main(void)
                                          pu8a_frame,
                                          ETH_FRAME_LEN,
                                          0,
-                                         (struct sockaddr *)&s_dest_addr,
-                                         sizeof(s_dest_addr));
+                                         (struct sockaddr *)&s_src_addr,
+                                         sizeof(s_src_addr));
 
                         if (-1 == s32_res)
                         {
@@ -298,9 +298,9 @@ int main(void)
                         }
                     }
                 }
-                printf("\n");
-                printf("Average of latencies is %.2lf\n", (avg / (atoi(sArr[1]) + 1)));
-                printf("==============================================\n");
+                // printf("\n");
+                // printf("Average of latencies is %.2lf\n", (avg / (atoi(sArr[1]) + 1)));
+                // printf("==============================================\n");
             }
         }
     }
