@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "get_nic_index.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "socket.h": "c",
+        "ioctl.h": "c"
     }
 }

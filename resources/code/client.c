@@ -159,7 +159,7 @@ int main(void)
     {
         (void)memset(&pu8a_frame[u16_data_off], '\0', ETH_DATA_LEN);
 
-        clock_gettime(CLOCK_REALTIME, &curTime);
+        clock_gettime(CLOCK_MONOTONIC_RAW, &curTime);
 
         (void)snprintf((char *)&pu8a_frame[u16_data_off],
                        ETH_DATA_LEN,
