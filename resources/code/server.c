@@ -76,7 +76,7 @@ int main(void)
     uint16_t u16_data_off = 0;
     uint8_t *pu8a_frame = NULL;
     uint16_t u16_i = 0;
-    struct timespec lastTime;
+    struct timespec server_send, server_recv;
     long temp;
     double avg = 0;
     char *sArr[3] = {
@@ -141,7 +141,7 @@ int main(void)
     s_src_addr.sll_hatype = ARPHRD_ETHER;
     s_src_addr.sll_pkttype = PACKET_HOST; //PACKET_OTHERHOST;
     s_src_addr.sll_halen = ETH_ALEN;
-    
+
     s_src_addr.sll_addr[0] = gu8a_src_mac[0];
     s_src_addr.sll_addr[1] = gu8a_src_mac[1];
     s_src_addr.sll_addr[2] = gu8a_src_mac[2];
@@ -211,6 +211,7 @@ int main(void)
                            0,
                            (struct sockaddr *)&s_sender_addr,
                            &u32_sender_addr_len);
+        clock_gettime(CLOCK_MONOTONIC_RAW, &server_recv);
 
         if (-1 == s32_res)
         {
@@ -236,8 +237,6 @@ int main(void)
             char *str = strtok(&pu8a_frame[u16_data_off], " ");
             u16_i = 0;
 
-            printf("Received data ");
-
             flag = 0;
             for (u16_i = 0; u16_i < sizeof(s_sender_addr.sll_addr) - 2; u16_i++)
             {
@@ -250,7 +249,7 @@ int main(void)
 
             if (flag == 1)
             {
-                printf("Server) Received data %s\n\n", &pu8a_frame[u16_data_off]);
+                printf("Server received data from others : %s\n\n", &pu8a_frame[u16_data_off]);
             }
             else
             {
@@ -262,6 +261,8 @@ int main(void)
 
                     str = strtok(NULL, " ");
                 }
+
+                printf("  Received data from client : ");
 
                 for (u16_i = 0; u16_i < 3; u16_i++)
                 {
@@ -279,20 +280,13 @@ int main(void)
                         printf("msg sent at %ld (ns)\n", temp);
 
                         (void)memcpy(pu8a_frame, gu8a_src_mac, ETH_ALEN);
-    (void)memcpy(pu8a_frame + ETH_ALEN, gu8a_dest_mac, ETH_ALEN);
+                        (void)memcpy(pu8a_frame + ETH_ALEN, gu8a_dest_mac, ETH_ALEN);
 
-
-                        clock_gettime(CLOCK_MONOTONIC_RAW, &lastTime);
+                        clock_gettime(CLOCK_MONOTONIC_RAW, &server_send);
 
                         (void)snprintf((char *)&pu8a_frame[u16_data_off],
                                        ETH_DATA_LEN,
-                                       "Sending_back_from_msg %d %ld", atoi(sArr[u16_i - 1]), lastTime.tv_nsec);
-
-                        // temp = atol(sArr[u16_i]);
-                        // lastTime.tv_nsec -= temp;
-                        // if(lastTime.tv_nsec < 0) lastTime.tv_nsec += 1000000000;
-                        // printf("with latency %ld (ns) ", lastTime.tv_nsec);
-                        // avg += lastTime.tv_nsec;
+                                       "Sending_back %d %ld", atoi(sArr[u16_i - 1]), server_send.tv_nsec - sender_recv.tv_nsec);
 
                         s32_res = sendto(s32_sock,
                                          pu8a_frame,
@@ -308,9 +302,6 @@ int main(void)
                         }
                     }
                 }
-                // printf("\n");
-                // printf("Average of latencies is %.2lf\n", (avg / (atoi(sArr[1]) + 1)));
-                // printf("==============================================\n");
             }
         }
     }

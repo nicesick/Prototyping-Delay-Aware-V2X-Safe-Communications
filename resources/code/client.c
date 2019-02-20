@@ -35,15 +35,15 @@ gu8a_src_mac : save the value SRC_MAC using the function "get_mac_addr()" from m
 gu8a_dest_mac : save the value DEST_MAC using the function "get_mac_addr()" from mac.h
 */
 
-extern char* NIC_NAME;
+extern char *NIC_NAME;
 extern uint8_t gu8a_src_mac[6];
 extern uint8_t gu8a_dest_mac[6];
 
-void* sock_recv_thread ();
+void *sock_recv_thread();
 
 int main(void)
 {
-	/*
+    /*
 	- LOCAL VARIABLE
 
 	s_dest_addr : save the value DEST_ADDR and protocols
@@ -64,10 +64,10 @@ int main(void)
     uint16_t u16_i = 0;
     uint8_t *pu8a_frame = NULL;
     uint8_t *pu8a_data = NULL;
-    pthread_t ul_recv_thd_id  = -1;
-    //long curTime;
-    struct timespec curTime;
-	/*
+    pthread_t ul_recv_thd_id = -1;
+
+    struct timespec client_send, client_recv;
+    /*
 	get_mac_addr() : fill the SRC_MAC and DEST_MAC value to gu8a_src_mac, gu8a_dest_mac array
 	get_nice_name() : fill the NIC_NAME value to NIC_NAME
 	*/
@@ -76,7 +76,7 @@ int main(void)
 
     printf("Socket raw test\n");
 
-	/*
+    /*
 	this part is creating frame and socket for sending the message
 	there are some variable to save the value of frame and socket
 
@@ -112,22 +112,21 @@ int main(void)
     printf("Client) Socket created\n");
     fflush(stdout);
 
-    (void) pthread_create (&ul_recv_thd_id, NULL, sock_recv_thread, NULL);
+    (void)pthread_create(&ul_recv_thd_id, NULL, sock_recv_thread, NULL);
 
     sleep(1);
 
-	/*
+    /*
 	this part is saving the values for target socket
 	
 	when the receiver will receive the message, 
 	the receiver will check this message is for his machine or not using this infomation
 	*/
 
-
     s_dest_addr.sll_family = AF_PACKET;
     /*we don't use a protocol above ethernet layer, just use anything here*/
     s_dest_addr.sll_protocol = htons(ETH_P_ALL);
-    s_dest_addr.sll_ifindex = get_nic_index((char *) NIC_NAME);
+    s_dest_addr.sll_ifindex = get_nic_index((char *)NIC_NAME);
     s_dest_addr.sll_hatype = ARPHRD_ETHER;
     s_dest_addr.sll_pkttype = PACKET_OTHERHOST; //PACKET_OUTGOING
     s_dest_addr.sll_halen = ETH_ALEN;
@@ -142,7 +141,7 @@ int main(void)
     s_dest_addr.sll_addr[6] = 0x00; /*not used*/
     s_dest_addr.sll_addr[7] = 0x00; /*not used*/
 
-	/*
+    /*
 	this part is preparing the message and sending the message to target
 	we put the timestamp value for analyzing the latency
 	if the receiver will get this message, the receiver will analyze the latency using this information
@@ -166,11 +165,11 @@ int main(void)
     {
         (void)memset(&pu8a_frame[u16_data_off], '\0', ETH_DATA_LEN);
 
-        clock_gettime(CLOCK_MONOTONIC_RAW, &curTime);
+        clock_gettime(CLOCK_MONOTONIC_RAW, &client_send);
 
         (void)snprintf((char *)&pu8a_frame[u16_data_off],
                        ETH_DATA_LEN,
-                       "raw_packet_test %d %ld", u16_i++, curTime.tv_nsec);
+                       "raw_packet_test %d %ld", u16_i++, client_send.tv_nsec);
 
         printf("Client sent a message %d\n", u16_i - 1);
 
@@ -201,95 +200,92 @@ LABEL_CLEAN_EXIT:
     return EXIT_SUCCESS;
 }
 
-void*
-sock_recv_thread ()
+void *
+sock_recv_thread()
 {
-    struct sockaddr_ll  s_src_addr;
-    int32_t             s32_sock        = -1;
-    int32_t             s32_res         = -1;
-    uint16_t            u16_data_off    = 0;
-    uint8_t             *pu8a_frame     = NULL;
+    struct sockaddr_ll s_src_addr;
+    int32_t s32_sock = -1;
+    int32_t s32_res = -1;
+    uint16_t u16_data_off = 0;
+    uint8_t *pu8a_frame = NULL;
     uint16_t u16_i = 0;
     int flag;
     char *sArr[3] = {
         NULL,
     };
 
-    struct timespec lastTime;
     long temp;
-    
-    printf ("Socket receive thread\n");
 
-    u16_data_off = (uint16_t) (ETH_FRAME_LEN - ETH_DATA_LEN);
+    printf("Socket receive thread\n");
 
-    pu8a_frame = (uint8_t*) calloc (ETH_FRAME_LEN, 1);
-    
-    s32_sock = socket (AF_PACKET, SOCK_RAW, htons (ETH_P_ALL));
+    u16_data_off = (uint16_t)(ETH_FRAME_LEN - ETH_DATA_LEN);
 
-    if( -1 == s32_sock )
+    pu8a_frame = (uint8_t *)calloc(ETH_FRAME_LEN, 1);
+
+    s32_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+
+    if (-1 == s32_sock)
     {
-        perror ("Could not create the socket");
+        perror("Could not create the socket");
         goto LABEL_CLEAN_EXIT;
     }
 
-    printf ("Receiver) Socket created\n");
-    if( NULL == pu8a_frame )
+    printf("Receiver) Socket created\n");
+    if (NULL == pu8a_frame)
     {
-        printf ("Could not get memory for the receive frame\n");
+        printf("Could not get memory for the receive frame\n");
         goto LABEL_CLEAN_EXIT;
     }
 
-    (void) memset (&s_src_addr, 0, sizeof (s_src_addr));
+    (void)memset(&s_src_addr, 0, sizeof(s_src_addr));
 
-    s_src_addr.sll_family       = AF_PACKET;
+    s_src_addr.sll_family = AF_PACKET;
     /*we don't use a protocol above ethernet layer, just use anything here*/
-    s_src_addr.sll_protocol     = htons(ETH_P_ALL);
-    s_src_addr.sll_ifindex      = get_nic_index ((char *) NIC_NAME);
-    s_src_addr.sll_hatype       = ARPHRD_ETHER;
-    s_src_addr.sll_pkttype      = PACKET_HOST;//PACKET_OTHERHOST;
-    s_src_addr.sll_halen        = ETH_ALEN;
+    s_src_addr.sll_protocol = htons(ETH_P_ALL);
+    s_src_addr.sll_ifindex = get_nic_index((char *)NIC_NAME);
+    s_src_addr.sll_hatype = ARPHRD_ETHER;
+    s_src_addr.sll_pkttype = PACKET_HOST; //PACKET_OTHERHOST;
+    s_src_addr.sll_halen = ETH_ALEN;
 
-    s32_res = bind (s32_sock,
-                    (struct sockaddr *) &s_src_addr,
-                    sizeof(s_src_addr));
+    s32_res = bind(s32_sock,
+                   (struct sockaddr *)&s_src_addr,
+                   sizeof(s_src_addr));
 
-    if( -1 == s32_res )
+    if (-1 == s32_res)
     {
-        perror ("Could not bind to the socket");
+        perror("Could not bind to the socket");
         goto LABEL_CLEAN_EXIT;
     }
 
-    printf ("Socket bind successful\n");
+    printf("Socket bind successful\n");
 
-    while( 1 )
+    while (1)
     {
-        struct sockaddr_ll  s_sender_addr;
-        socklen_t           u32_sender_addr_len = sizeof (s_sender_addr);
+        struct sockaddr_ll s_sender_addr;
+        socklen_t u32_sender_addr_len = sizeof(s_sender_addr);
 
-        (void) memset (&s_sender_addr, 0, sizeof (s_sender_addr));
+        (void)memset(&s_sender_addr, 0, sizeof(s_sender_addr));
 
-        s32_res = recvfrom (s32_sock,
-                            pu8a_frame,
-                            ETH_FRAME_LEN,
-                            0,
-                            (struct sockaddr *) &s_sender_addr,
-                            &u32_sender_addr_len);
+        s32_res = recvfrom(s32_sock,
+                           pu8a_frame,
+                           ETH_FRAME_LEN,
+                           0,
+                           (struct sockaddr *)&s_sender_addr,
+                           &u32_sender_addr_len);
+        clock_gettime(CLOCK_MONOTONIC_RAW, &client_recv);
 
-        
-        if( -1 == s32_res )
+        if (-1 == s32_res)
         {
-            perror ("Socket receive failed");
+            perror("Socket receive failed");
             break;
         }
-        else if( s32_res < 0 )
+        else if (s32_res < 0)
         {
-            perror ("Socket receive, error ");
+            perror("Socket receive, error ");
         }
         else
         {
             u16_i = 0;
-            printf ("Received data from ");
-
 
             char *str = strtok(&pu8a_frame[u16_data_off], " ");
 
@@ -306,11 +302,13 @@ sock_recv_thread ()
             if (flag == 0)
             {
 
-            for( u16_i=0; u16_i<sizeof(s_sender_addr.sll_addr)-2; u16_i++ )
-            {
-                printf ("%02x:", s_sender_addr.sll_addr[u16_i]);
-            }
-            printf("\n");
+                printf("  Received data from server : ");
+
+                for (u16_i = 0; u16_i < sizeof(s_sender_addr.sll_addr) - 2; u16_i++)
+                {
+                    printf("%02x:", s_sender_addr.sll_addr[u16_i]);
+                }
+                printf("\n");
 
                 u16_i = 0;
                 while (str != NULL)
@@ -335,13 +333,13 @@ sock_recv_thread ()
                     {
                         temp = atol(sArr[u16_i]);
                         printf("\nClient ) msg sent at %ld (ns)\n", temp);
-                        clock_gettime(CLOCK_MONOTONIC_RAW, &lastTime);
-                        printf(" LATENCY : %ld\n",lastTime.tv_nsec - temp);
+
+                        printf(" MESSAGE[%d] LATENCY : %ld\n", sArr[1], client_recv.tv_nsec - client_send.tv_nsec);
+                        printf(" NETWORK[%d] LATENCY : %ld\n", sArr[1], client_recv.tv_nsec - client_send.tv_nsec)
                     }
                 }
             }
         }
-
     }
 
 LABEL_CLEAN_EXIT:
