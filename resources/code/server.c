@@ -286,7 +286,7 @@ int main(void)
 
                         (void)snprintf((char *)&pu8a_frame[u16_data_off],
                                        ETH_DATA_LEN,
-                                       "Index/Diff %d %ld", atoi(sArr[u16_i - 1]), server_send.tv_nsec - sender_recv.tv_nsec);
+                                       "Index/Diff %d %ld", atoi(sArr[u16_i - 1]), server_send.tv_nsec - server_recv.tv_nsec);
 
                         s32_res = sendto(s32_sock,
                                          pu8a_frame,

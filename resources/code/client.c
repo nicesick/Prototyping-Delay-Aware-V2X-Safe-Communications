@@ -26,6 +26,7 @@
 #include <time.h>
 #include "mac.h" /* MAC address */
 #include "get_nic_index.h"
+#include "circular_array.h"
 
 /*
 - EXTERN VARIABLE
@@ -66,13 +67,14 @@ int main(void)
     uint8_t *pu8a_data = NULL;
     pthread_t ul_recv_thd_id = -1;
 
-    struct timespec client_send, client_recv;
+    struct timespec client_send;
     /*
 	get_mac_addr() : fill the SRC_MAC and DEST_MAC value to gu8a_src_mac, gu8a_dest_mac array
 	get_nice_name() : fill the NIC_NAME value to NIC_NAME
 	*/
     get_mac_addr();
     get_nic_name();
+    initArray();
 
     printf("Socket raw test\n");
 
@@ -166,6 +168,7 @@ int main(void)
         (void)memset(&pu8a_frame[u16_data_off], '\0', ETH_DATA_LEN);
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &client_send);
+        putSendTime(client_send.tv_nsec, u16_i);
 
         (void)snprintf((char *)&pu8a_frame[u16_data_off],
                        ETH_DATA_LEN,
@@ -214,6 +217,7 @@ sock_recv_thread()
         NULL,
     };
 
+    struct timespec client_recv;
     long diff;
 
     printf("Socket receive thread\n");
@@ -272,6 +276,7 @@ sock_recv_thread()
                            0,
                            (struct sockaddr *)&s_sender_addr,
                            &u32_sender_addr_len);
+
         clock_gettime(CLOCK_MONOTONIC_RAW, &client_recv);
 
         if (-1 == s32_res)
@@ -301,7 +306,7 @@ sock_recv_thread()
 
             if (flag == 0)
             {
-
+                
                 printf("  Received data from server : ");
 
                 for (u16_i = 0; u16_i < sizeof(s_sender_addr.sll_addr) - 2; u16_i++)
@@ -328,13 +333,17 @@ sock_recv_thread()
                     else if (u16_i == 1)
                     {
                         printf("%s ", sArr[u16_i]);
+                        putRecvTime(client_recv.tv_nsec,atoi(sArr[u16_i]));
                     }
                     else if (u16_i == 2)
                     {
                         diff = atol(sArr[u16_i]);
+                        putDiff(diff, atoi(sArr[u16_i - 1]));
 
-                        printf(" MESSAGE[%d] LATENCY : %ld\n", sArr[1], client_recv.tv_nsec - client_send.tv_nsec);
-                        printf(" NETWORK[%d] LATENCY : %ld\n", sArr[1], client_recv.tv_nsec - client_send.tv_nsec - diff);
+
+                        printf("\n MESSAGE[%d] LATENCY : %ld\n", atoi(sArr[1]), getMessageLatency(atoi(sArr[u16_i - 1])));
+                        printf(" NETWORK[%d] LATENCY : %ld\n", atoi(sArr[1]), getNetworkLatency(atoi(sArr[u16_i - 1])));
+                        printf(" DIFF : %ld\n\n",diff);
                     }
                 }
             }
