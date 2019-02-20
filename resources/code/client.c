@@ -214,7 +214,7 @@ sock_recv_thread()
         NULL,
     };
 
-    long temp;
+    long diff;
 
     printf("Socket receive thread\n");
 
@@ -331,11 +331,10 @@ sock_recv_thread()
                     }
                     else if (u16_i == 2)
                     {
-                        temp = atol(sArr[u16_i]);
-                        printf("\nClient ) msg sent at %ld (ns)\n", temp);
+                        diff = atol(sArr[u16_i]);
 
                         printf(" MESSAGE[%d] LATENCY : %ld\n", sArr[1], client_recv.tv_nsec - client_send.tv_nsec);
-                        printf(" NETWORK[%d] LATENCY : %ld\n", sArr[1], client_recv.tv_nsec - client_send.tv_nsec)
+                        printf(" NETWORK[%d] LATENCY : %ld\n", sArr[1], client_recv.tv_nsec - client_send.tv_nsec - diff);
                     }
                 }
             }
