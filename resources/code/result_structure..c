@@ -1,4 +1,4 @@
-#include "circular_array.h"
+#include "result_structure.h"
 
 void initArray() {
     (void)memset(&circular_array, 0, sizeof(circular_array));
@@ -55,15 +55,29 @@ long getDiff(int index) {
 long getMessageLatency(int index) {
     int indexOfArray = index % MAXIMUM;
 
-    return circular_array[indexOfArray].recvTime - circular_array[indexOfArray].sendTime;
+    return timespec_diff(circular_array[indexOfArray].recvTime , circular_array[indexOfArray].sendTime);
 }
 
 long getNetworkLatency(int index) {
     int indexOfArray = index % MAXIMUM;
 
-    return circular_array[indexOfArray].recvTime - circular_array[indexOfArray].sendTime - circular_array[indexOfArray].diff;
+    return timespec_diff(circular_array[indexOfArray].recvTime , circular_array[indexOfArray].sendTime) - circular_array[indexOfArray].diff;
 }
 
 void printAllArray() {
     
+}
+
+
+long timespec_diff(long start, long stop)
+{
+    long result;
+
+    if ((stop - start) < 0) {
+        result = stop - start + 1000000000;
+    } else {
+        result = stop - start;
+    }
+
+    return result;
 }

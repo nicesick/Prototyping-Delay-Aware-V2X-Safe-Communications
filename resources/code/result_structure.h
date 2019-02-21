@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAXIMUM 10
+#define MAXIMUM 300
 #define FULL 1
 #define NOT_FULL 0
 
@@ -30,3 +30,5 @@ long getMessageLatency(int index);
 long getNetworkLatency(int index);
 
 void printAllArray();
+
+long timespec_diff(long start, long stop);

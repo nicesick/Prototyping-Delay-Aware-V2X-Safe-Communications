@@ -26,7 +26,7 @@
 #include <time.h>
 #include "mac.h" /* MAC address */
 #include "get_nic_index.h"
-#include "circular_array.h"
+#include "result_structure.h"
 #include "write_data.h"
 /*
 - EXTERN VARIABLE
