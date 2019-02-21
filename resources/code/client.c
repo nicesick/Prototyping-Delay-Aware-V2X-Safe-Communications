@@ -27,7 +27,7 @@
 #include "mac.h" /* MAC address */
 #include "get_nic_index.h"
 #include "circular_array.h"
-
+#include "write_data.h"
 /*
 - EXTERN VARIABLE
 
@@ -42,7 +42,7 @@ extern uint8_t gu8a_dest_mac[6];
 
 void *sock_recv_thread();
 
-int main(void)
+int main(int argc, char *argv[])
 {
     /*
 	- LOCAL VARIABLE
@@ -72,9 +72,11 @@ int main(void)
 	get_mac_addr() : fill the SRC_MAC and DEST_MAC value to gu8a_src_mac, gu8a_dest_mac array
 	get_nice_name() : fill the NIC_NAME value to NIC_NAME
 	*/
+
     get_mac_addr();
     get_nic_name();
     initArray();
+    openTextFile(argv[1]);
 
     printf("Socket raw test\n");
 
@@ -340,10 +342,18 @@ sock_recv_thread()
                         diff = atol(sArr[u16_i]);
                         putDiff(diff, atoi(sArr[u16_i - 1]));
 
-
                         printf("\n MESSAGE[%d] LATENCY : %ld\n", atoi(sArr[1]), getMessageLatency(atoi(sArr[u16_i - 1])));
                         printf(" NETWORK[%d] LATENCY : %ld\n", atoi(sArr[1]), getNetworkLatency(atoi(sArr[u16_i - 1])));
                         printf(" DIFF : %ld\n\n",diff);
+
+                        if(isFull() == FULL) {
+                            for(int k = 0; k < MAXIMUM - 1; k++) {
+                                writeDataToText(getNetworkLatency(k));
+                            }
+
+                            closeTextFile();
+                            goto LABEL_CLEAN_EXIT;
+                        }
                     }
                 }
             }

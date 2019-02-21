@@ -4,6 +4,8 @@
 #include <string.h>
 
 #define MAXIMUM 10
+#define FULL 1
+#define NOT_FULL 0
 
 struct timeGap {
     long sendTime;
@@ -14,6 +16,7 @@ struct timeGap {
 struct timeGap circular_array[MAXIMUM];
 
 void initArray();
+int isFull();
 
 void putSendTime(long sendTime, int index);
 void putRecvTime(long recvTime, int index);

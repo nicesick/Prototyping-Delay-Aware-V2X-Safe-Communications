@@ -4,6 +4,18 @@ void initArray() {
     (void)memset(&circular_array, 0, sizeof(circular_array));
 }
 
+int isFull() {
+    if(circular_array[MAXIMUM - 1].recvTime != 0 
+    && circular_array[MAXIMUM - 1].sendTime != 0 
+    && circular_array[MAXIMUM - 1].diff != 0) {
+            return FULL;
+    }
+
+    else {
+        return NOT_FULL;
+    }
+}
+
 void putSendTime(long sendTime, int index) {
     int indexOfArray = index % MAXIMUM;
 
