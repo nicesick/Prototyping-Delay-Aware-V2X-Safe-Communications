@@ -47,7 +47,7 @@ If you want to set up different scheduling algorithms and different priority on 
 
 ### Brief explanation
 
-![intro](https://user-images.githubusercontent.com/29877872/53197443-84687a80-361a-11e9-9245-a664ae8d2fa8.png)
+![intro](https://user-images.githubusercontent.com/29877872/53198944-0908c800-361e-11e9-843e-e2157689753f.png)
 
 We assume that all nodes know other nodes's MAC addresses that will communicate with. When the client sends a message to the server, the message has its own index and the time when it was sent. After taking network latency, the server will receive the message and get the time when the message is received. Then, the server will calculate __Diff__ which is execution time by subtracting received time from the time just before sending back the decoded message to the client. When the client sends back the message, it will calculate __Message latency__. __Network latency__ is a result of subtraction __Diff__ from __Message latency.__
 
