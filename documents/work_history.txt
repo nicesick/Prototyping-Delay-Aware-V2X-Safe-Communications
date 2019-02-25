@@ -18,15 +18,12 @@
 ### 01-11-2019
 #### 1. the board didn't work. 
 #### 2. we organized github and what we have done in this week.
-<<<<<<< HEAD
-=======
 
 *2nd week (011419 - 011819)
 
 ### 01-14-2019
 #### 1. Meething with professors
 #### 2. Detailed objectives
->>>>>>> 87e1dd98907c29413abe510e335b4c322fc83d8c
 
 ### 01-15-2019
 #### 1. Researching network stacks on Linux began.
@@ -121,4 +118,37 @@
 #### 1. presentation preparation.
 
 ### 02-15-2019
-#### 1.
+#### 1. additional tasks : we need to test depends on packet size
+
+=======
+
+*7th week (021819 - 022219)
+### 02-18-2019
+#### 1. Code revision : one-way communication => two-way communication
+
+### 02-19-2019
+#### 1. Code revision : create an array queue to handle latency for each message
+
+### 02-20-2019
+#### 1. Code revision : using timespec and handlers for underflow to get accurate latency
+
+### 02-21-2019
+#### 1. Code revision : make the client to get two parameters (packet size and a name of .xls output file)
+
+### 02-22-2019
+#### 1. Code refactoring and update documents
+
+=======
+
+*8th week (022519 - 022819) *last week, upto Thursday.
+### 02-25-2019
+#### 1. Test all condition under small packet size (ETH_ZLEN)
+
+### 02-26-2019
+#### 1. Test all condition under large packet size (ETH_FRAME_LEN)
+
+### 02-27-2019
+#### 1. Data Visualization and update documents
+
+### 02-28-2019
+#### END 
