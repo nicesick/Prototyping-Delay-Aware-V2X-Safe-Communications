@@ -15,6 +15,7 @@
 #include "mac.h"
 #include "write_data.h"
 #include "get_nic_index.h"
+#include "packet_size.h"
 /*
 - EXTERN VARIABLE
 
@@ -64,6 +65,7 @@ int main(int argc, char *argv[])
     get_nic_name();
     initArray();
     openTextFile(argv[1]);
+    set_packet_size(argv[2]);
 
     printf("Socket raw test\n");
 
@@ -83,7 +85,9 @@ int main(int argc, char *argv[])
 	*/
 
     (void)memset(&s_dest_addr, 0, sizeof(s_dest_addr));
-    pu8a_frame = (uint8_t *)calloc(ETH_FRAME_LEN, 1);
+    u16_data_off = (uint16_t)(ETH_HLEN); //ETH_FRAME_LEN - ETH_DATA_LEN
+
+    pu8a_frame = (uint8_t *)calloc(get_packet_size(1), 1);
 
     if (NULL == pu8a_frame)
     {
@@ -91,8 +95,8 @@ int main(int argc, char *argv[])
         goto LABEL_CLEAN_EXIT;
     }
 
-    u16_data_off = (uint16_t)(ETH_HLEN); //ETH_FRAME_LEN - ETH_DATA_LEN
     pu8a_data = pu8a_frame + u16_data_off;
+
     s32_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
     if (-1 == s32_sock)
@@ -155,20 +159,20 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        (void)memset(&pu8a_frame[u16_data_off], '\0', ETH_DATA_LEN);
+        (void)memset(&pu8a_frame[u16_data_off], '\0', get_packet_size(2));
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &client_send);
         putSendTime(client_send.tv_nsec, u16_i);
 
         (void)snprintf((char *)&pu8a_frame[u16_data_off],
-                       ETH_DATA_LEN,
+                       get_packet_size(2),
                        "raw_packet_test %d %ld", u16_i++, client_send.tv_nsec);
 
         printf("Client sent a message %d\n", u16_i - 1);
 
         s32_res = sendto(s32_sock,
                          pu8a_frame,
-                         ETH_FRAME_LEN,
+                         get_packet_size(1),
                          0,
                          (struct sockaddr *)&s_dest_addr,
                          sizeof(s_dest_addr));
