@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
 
 	
 	*/
+
     (void)memset(&s_dest_addr, 0, sizeof(s_dest_addr));
     pu8a_frame = (uint8_t *)calloc(ETH_FRAME_LEN, 1);
 
@@ -89,7 +90,7 @@ int main(int argc, char *argv[])
         goto LABEL_CLEAN_EXIT;
     }
 
-    u16_data_off = (uint16_t)(ETH_FRAME_LEN - ETH_DATA_LEN);
+    u16_data_off = (uint16_t)(ETH_HLEN); //ETH_FRAME_LEN - ETH_DATA_LEN
     pu8a_data = pu8a_frame + u16_data_off;
     s32_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 

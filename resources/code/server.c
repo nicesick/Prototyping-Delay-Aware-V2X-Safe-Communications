@@ -97,7 +97,7 @@ int main(void)
 
 	*/
 
-    u16_data_off = (uint16_t)(ETH_FRAME_LEN - ETH_DATA_LEN);
+    u16_data_off = (uint16_t)(ETH_HLEN); //ETH_FRAME_LEN - ETH_DATA_LEN
     pu8a_frame = (uint8_t *)calloc(ETH_FRAME_LEN, 1);
     s32_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
