@@ -7,23 +7,23 @@ server: server.o mac.o get_nic_index.o result_structure.o
 client: client.o mac.o get_nic_index.o result_structure.o write_data.o
 	gcc -pthread -o client client.o mac.o get_nic_index.o result_structure.o write_data.o
 
-setup.o: setup.c setup.h get_nic_index.h
+setup.o: setup.c setup.h common_header.h get_nic_index.h
 	gcc -c -o setup.o setup.c
 	
-server.o: mac.h get_nic_index.h result_structure.h server.c
+server.o: main_header.h mac.h get_nic_index.h result_structure.h server.c
 	gcc -c -o server.o server.c
 
-client.o: mac.h get_nic_index.h result_structure.h write_data.h client.c
+client.o: main_header.h mac.h get_nic_index.h result_structure.h write_data.h client.c
 	gcc -pthread -c -o client.o client.c
 
 write_data.o: write_data.h write_data.c
 	gcc -c -o write_data.o write_data.c
 
-result_structure.o: result_structure.h result_structure.c
+result_structure.o: common_header.h result_structure.h result_structure.c
 	gcc -c -o result_structure.o result_structure.c
 
-mac.o: mac.h mac.c
+mac.o: common_header.h mac.h mac.c
 	gcc -c -o mac.o mac.c
 
-get_nic_index.o: get_nic_index.h get_nic_index.c
+get_nic_index.o: common_header.h get_nic_index.h get_nic_index.c
 	gcc -c -o get_nic_index.o get_nic_index.c
