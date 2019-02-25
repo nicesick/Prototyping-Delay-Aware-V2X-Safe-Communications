@@ -55,13 +55,13 @@ long getDiff(int index) {
 long getMessageLatency(int index) {
     int indexOfArray = index % MAXIMUM;
 
-    return timespec_diff(circular_array[indexOfArray].recvTime , circular_array[indexOfArray].sendTime);
+    return timespec_diff(circular_array[indexOfArray].sendTime, circular_array[indexOfArray].recvTime);
 }
 
 long getNetworkLatency(int index) {
     int indexOfArray = index % MAXIMUM;
 
-    return timespec_diff(circular_array[indexOfArray].recvTime , circular_array[indexOfArray].sendTime) - circular_array[indexOfArray].diff;
+    return timespec_diff(circular_array[indexOfArray].sendTime, circular_array[indexOfArray].recvTime) - circular_array[indexOfArray].diff;
 }
 
 void printAllArray() {
