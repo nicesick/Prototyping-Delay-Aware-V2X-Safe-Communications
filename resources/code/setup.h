@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include "common_header.h"
 #include "get_nic_index.h"
 
 void get_bandwidth_frequency();

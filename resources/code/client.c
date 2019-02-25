@@ -9,25 +9,11 @@
 
   *Reference : https://stackoverflow.com/questions/10824827/raw-sockets-communication-over-wifi-receiver-not-able-to-receive-packets
 */
-
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <pthread.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <linux/sockios.h>
-#include <net/ethernet.h> /* the L2 protocols */
-#include <linux/if.h>
-#include <linux/if_arp.h>
-#include <arpa/inet.h>
-#include <time.h>
-#include "mac.h" /* MAC address */
-#include "get_nic_index.h"
+#include "main_header.h"
 #include "result_structure.h"
-#include "write_data.h"
+#include "mac.h"
+#include "get_nic_index.h"
 /*
 - EXTERN VARIABLE
 
@@ -308,7 +294,7 @@ sock_recv_thread()
 
             if (flag == 0)
             {
-                
+
                 printf("  Received data from server : ");
 
                 for (u16_i = 0; u16_i < sizeof(s_sender_addr.sll_addr) - 2; u16_i++)
@@ -335,7 +321,7 @@ sock_recv_thread()
                     else if (u16_i == 1)
                     {
                         printf("%s ", sArr[u16_i]);
-                        putRecvTime(client_recv.tv_nsec,atoi(sArr[u16_i]));
+                        putRecvTime(client_recv.tv_nsec, atoi(sArr[u16_i]));
                     }
                     else if (u16_i == 2)
                     {
@@ -344,10 +330,12 @@ sock_recv_thread()
 
                         printf("\n MESSAGE[%d] LATENCY : %ld\n", atoi(sArr[1]), getMessageLatency(atoi(sArr[u16_i - 1])));
                         printf(" NETWORK[%d] LATENCY : %ld\n", atoi(sArr[1]), getNetworkLatency(atoi(sArr[u16_i - 1])));
-                        printf(" DIFF : %ld\n\n",diff);
+                        printf(" DIFF : %ld\n\n", diff);
 
-                        if(isFull() == FULL) {
-                            for(int k = 0; k < MAXIMUM - 1; k++) {
+                        if (isFull() == FULL)
+                        {
+                            for (int k = 0; k < MAXIMUM - 1; k++)
+                            {
                                 writeDataToText(getNetworkLatency(k));
                             }
 

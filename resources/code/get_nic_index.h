@@ -1,12 +1,8 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <linux/sockios.h>
 #include <linux/if.h>
+#include "common_header.h"
 
 char *NIC_NAME;
 

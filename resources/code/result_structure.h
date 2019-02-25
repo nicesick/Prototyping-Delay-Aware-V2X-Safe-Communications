@@ -1,13 +1,12 @@
-#include <stdio.h>
 #include <time.h>
-#include <stdlib.h>
-#include <string.h>
+#include "common_header.h"
 
 #define MAXIMUM 300
 #define FULL 1
 #define NOT_FULL 0
 
-struct timeGap {
+struct timeGap
+{
     long sendTime;
     long recvTime;
     long diff;

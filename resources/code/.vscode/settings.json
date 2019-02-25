@@ -3,6 +3,7 @@
         "get_nic_index.h": "c",
         "time.h": "c",
         "socket.h": "c",
-        "ioctl.h": "c"
+        "ioctl.h": "c",
+        "result_structure.h": "c"
     }
 }

@@ -12,19 +12,7 @@
   *Reference : https://stackoverflow.com/questions/10824827/raw-sockets-com$
 */
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <linux/sockios.h>
-#include <net/ethernet.h> /* the L2 protocols */
-#include <linux/if.h>
-#include <linux/if_arp.h>
-#include <arpa/inet.h>
-#include <time.h>
+#include "main_header.h"
 #include "result_structure.h"
 #include "mac.h"
 #include "get_nic_index.h"
@@ -280,7 +268,8 @@ int main(void)
                     {
                         temp = atol(sArr[u16_i]);
 
-                        if(temp <= 0) {
+                        if (temp <= 0)
+                        {
                             printf("Unexpected packet\n");
                             break;
                         }
