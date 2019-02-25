@@ -2,77 +2,83 @@
 |      This is a storage for commands that we used         |
  ----------------------------------------------------------
 
-1. sudo ifconfig
-- 현재 사용되고 있는 network configuration setting 을 볼 수 있다
-- we can check out the currently working network configuration setting 
+: USUAL NETWORK COMMAND
+
+sudo ifconfig
+- we can check out the currently working network configuration setting
+
 ================================================== 
-2. 현재 window 10 linux bash 환경에서
-iw 관련 명령어를 사용 할 수 없음
-(Error Message : Failed to connect generic network)
+: USUAL WIRELESS NETWORK COMMAND
 
 sudo iw phy
 sudo iw dev
-sudo iw dev wlan0 info
+sudo iw dev [wlan0] info
 sudo iwconfig
+
+- print the information of physical and link layer's device for wireless
 ==================================================
-3. ssh user@ipaddress
-- ssh 명령어를 통해 보드에 접속 가능
-- 비밀번호 : pass
+: COMMAND FOR HOST CHECK AND CONNECT
 
-4. hostname -I
-- 내 컴퓨터의 name, address 등의 정보 출력
+ssh user@ipaddress
+- we can connect to the board using ssh command
+- password of the board : pass
 
-5. copy keygen and paste to host machine
-- 보드에 처음 접속 시, keygen 을 복사하여 내 컴퓨터에 입력해야 함
-- 그 이후에는 자동으로 연결 가능
+hostname -I
+- print the information of host : name, IPaddress etc..
 
-6. rootpass
-- 보드 root 의 비밀번호
+copy keygen and paste to host machine
+- it is first try to connect to the board, you have to copy the keygen and paste it to host machine
+- from second try, this step is removed
 
-7. export WLAN=wlp4s0
-- 환경 변수 설정
-- 이후 $WLAN 로 입력하면 자동으로 wlp4s0 로 치환됨
+rootpass
+- password of root
 
-==================================================
-8. sudo iw phy
-- 보드에서 입력 해 볼 예정
-================================================== 
-
-9. preempty_test
-- 보드에 들어있는 코드
-- 이 코드를 사용하면 보드가 real-time kernel 인지 volunteer kernel 인지 판별 가능
+export WLAN=wlp4s0
+- setting the environment variable
+- if you use $WLAN, this value is replaced to wlp4s0 when this command is executed
 
 ================================================== 
-10. interface
-- OCB 
+: COMMAND FOR OCB MODE
 
-- 설정 순서
-ip link set WLAN down
+interface OCB 
+
+- the steps of setting OCB mode
+
+ip link set WLAN down		
 iw dev WLAN set type ocb
 ip link set WLAN up
 iw dev WLAN ocb join 5910 10MHZ
 iw dev WLAN info
 
-- 설정 해제 시
+- to leave this setting
 iw dev WLAN ocb leave
-================================================== 
-
-11. debian shell window 10
-- window 환경에서 linux bash 를 사용 할 수 있게 구축
 
 ================================================== 
+: COMMAND 
 
-du -h 해당폴더
-- 해당폴더 안에 있는 파일들의 크기를 측정해 출력해준다.
+du -h [Folder_name]
+- print size of the folder
 
-tar czf kernel.tgz *
-- 현재폴더 안에 있는 모든 파일 및 폴더를 kernel.tgz 라는 이름으로 압축해 준다.
+tar czf kernel.tgz * 
+- zip every folders and files to kernel.tgz
 
 tar -xzf kernel.tgz
-- kernel.tgz 라는 압축된 파일을 압축해제 해준다.
+- unzip kernel.tgz
 
 htop
-- 현재 호스트 머신의 하드웨어 정보를 출력해준다.
+- print the process of host machine graphically
+
+==================================================
+: COMMAND FOR CHECKING WIRELESS AND PRIORITY
 
 sudo ip -s link show dev WLAN
-- 하드웨어를 통해 보내고 받은 패킷에 대한 정보를 출력해준다.
+- print the packets we sent using WLAN device
+
+chrt -f [priority] ./[program_name]
+- change the [priority] of [program_name]
+
+iwlist [interface] [command]
+- print the information of wireless device
+
+iwconfig [interface] [command]
+- configure the information of wireless device
