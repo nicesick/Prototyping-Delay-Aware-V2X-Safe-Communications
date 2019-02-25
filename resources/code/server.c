@@ -16,7 +16,7 @@
 #include "result_structure.h"
 #include "mac.h"
 #include "get_nic_index.h"
-
+#include "packet_size.h"
 /*
 - EXTERN VARIABLE
 
@@ -29,7 +29,7 @@ extern char *NIC_NAME;
 extern uint8_t gu8a_src_mac[6];
 extern uint8_t gu8a_dest_mac[6];
 
-int main(void)
+int main(int argc, char *argv[])
 {
     /*
 	- LOCAL VARIABLE
@@ -80,7 +80,7 @@ int main(void)
 
     get_mac_addr();
     get_nic_name();
-
+    get_packet_size(argv[1]);
     /*
 	this part is creating frame and socket for receiving the message
 	there are some variable to save the value of frame and socket
@@ -97,8 +97,16 @@ int main(void)
 
 	*/
 
+    (void)memset(&s_src_addr, 0, sizeof(s_src_addr));
     u16_data_off = (uint16_t)(ETH_HLEN); //ETH_FRAME_LEN - ETH_DATA_LEN
-    pu8a_frame = (uint8_t *)calloc(ETH_FRAME_LEN, 1);
+
+    pu8a_frame = (uint8_t *)calloc(get_packet_size(1), 1);
+    if (NULL == pu8a_frame)
+    {
+        printf("Could not get memory for the receive frame\n");
+        goto LABEL_CLEAN_EXIT;
+    }
+
     s32_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
     if (-1 == s32_sock)
@@ -107,14 +115,6 @@ int main(void)
         goto LABEL_CLEAN_EXIT;
     }
     printf("Server) Socket created\n");
-
-    if (NULL == pu8a_frame)
-    {
-        printf("Could not get memory for the receive frame\n");
-        goto LABEL_CLEAN_EXIT;
-    }
-
-    (void)memset(&s_src_addr, 0, sizeof(s_src_addr));
 
     /*
 	this part is saving the values for target socket
@@ -196,7 +196,7 @@ int main(void)
 
         s32_res = recvfrom(s32_sock,
                            pu8a_frame,
-                           ETH_FRAME_LEN,
+                           get_packet_size(1),
                            0,
                            (struct sockaddr *)&s_sender_addr,
                            &u32_sender_addr_len);
@@ -282,12 +282,12 @@ int main(void)
                         clock_gettime(CLOCK_MONOTONIC_RAW, &server_send);
 
                         (void)snprintf((char *)&pu8a_frame[u16_data_off],
-                                       ETH_DATA_LEN,
+                                       get_packet_size(2),
                                        "Index/Diff %d %ld", atoi(sArr[u16_i - 1]), timespec_diff(server_send.tv_nsec, server_recv.tv_nsec));
 
                         s32_res = sendto(s32_sock,
                                          pu8a_frame,
-                                         ETH_FRAME_LEN,
+                                         get_packet_size(1),
                                          0,
                                          (struct sockaddr *)&s_src_addr,
                                          sizeof(s_src_addr));
