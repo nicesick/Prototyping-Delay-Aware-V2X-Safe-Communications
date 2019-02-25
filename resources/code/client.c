@@ -346,7 +346,7 @@ sock_recv_thread()
                             }
 
                             closeTextFile();
-                            goto LABEL_CLEAN_EXIT;
+                            initArray();
                         }
                     }
                 }
