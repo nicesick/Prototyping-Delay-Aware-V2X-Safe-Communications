@@ -53,22 +53,33 @@ If you want to set up different scheduling algorithms and different priority on 
 We assume that all nodes know other nodes's MAC addresses that will communicate with. When the client sends a message to the server, the message has its own index and the time when it was sent. After taking network latency, the server will receive the message and get the time when the message is received. Then, the server will calculate __Diff__ which is execution time by subtracting received time from the time just before sending back the decoded message to the client. When the client sends back the message, it will calculate __Message latency__. __Network latency__ is a result of subtraction __Diff__ from __Message latency.__
 
 ### Result
-![result1](https://user-images.githubusercontent.com/29877872/53419381-133e1400-39da-11e9-82b2-d1cad7c319e5.png)
-
-Figure 1 to 4 show Network latency (ns) over 100 iterations when distance between two boards are in 1 meter. CS=49, H=49 means Client and Server run with priority 49 and Hackbench runs with priority 49. 
 
 LARGE packet is ETH_FRAME_LEN(1514) and SMALL packet is ETH_ZLEN(60).
   
-Figure 1 runs on Real time Kernel with LARGE packet.  
-Figure 2 runs on Real time Kernel with SMALL packet.  
-Figure 3 runs on Voluntary Kernel with LARGE packet.  
-Figure 4 runs on Voluntary Kernel with SMALL packet.  
+Figure 1 and Figure 5 run on Real time Kernel with LARGE packet.  
+Figure 2 and Figure 6 run on Real time Kernel with SMALL packet.  
+Figure 3 and Figure 7 run on Voluntary Kernel with LARGE packet.  
+Figure 4 and Figure 8 run on Voluntary Kernel with SMALL packet.  
 
-__Real time Kernel and Voluntary Kernel have just few Network Latency differences
-but in the case when CS=1, H=49, Only Real time Kernel can communicate each other.__
+Figure 1 to 4 show that Network latency (ns) over 100 iterations when 1m distance between two boards. CS=49, H=49 means Client and Server run with priority 49 and Hackbench runs with priority 49.   
 
-We also examined same conditions with differen distance between the boards.  
+![result_1m](https://user-images.githubusercontent.com/29877872/53449096-608da600-3a19-11e9-87d2-1b6858e2c340.png)  
 
+Figure 5 to 8 show that Network latency (ns) over 100 iterations when 5m distance with a wall between two boards. CS=49, H=49 means Client and Server run with priority 49 and Hackbench runs with priority 49.  
+
+![result_5m](https://user-images.githubusercontent.com/29877872/53449124-6e432b80-3a19-11e9-83a1-87d56c68b6fa.png)  
+
+
+Figure 9 shows that Network latency (ns) over 100 iterations when two boards are running on Realtime Kernel with priority 1 for Client and Server and priority 49 for Hackbench.
+
+![result_cs1 h49](https://user-images.githubusercontent.com/29877872/53449141-77cc9380-3a19-11e9-9bbb-8d7148ff7573.png)  
+
+## Conclustion  
+
+ __1. Real time Kernel and Voluntary Kernel have just few Network Latency difference over all situation but in the case when CS=1, H=49, Real time Kernel can only communicate each other.    
+   2. Main difference between between two kinds of distances is the size of tips on the graphs. When tips happend, tips from situation with distance 5m are arranged at way higher points.  
+   3. There is an interesting result from Figure 6.__  
+    
 ### *Repository structure*  
  ┌─── ___documents ::___  
  │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── __presentation ::__  
