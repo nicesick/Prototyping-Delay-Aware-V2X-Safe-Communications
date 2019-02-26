@@ -44,15 +44,17 @@ int main(int argc, char *argv[])
 	get_nice_name() : fill the NIC_NAME value to NIC_NAME
 	*/
 
-    get_configuration();
-    openTextFile(argv[1]);
-    set_packet_size(argv[2]);
     initArray();
 
-    init_socket();
-    init_sockaddr_ll();
+    if (get_configuration() != NO_ERROR) {
+        return 0;
+    }
 
-    if(init_frame(get_packet_size(FRAME)) != NO_ERROR) {
+    if (openTextFile(argv[1]) != NO_ERROR) {
+        return 0;
+    }
+
+    if (set_packet_size(argv[2]) != NO_ERROR) {
         return 0;
     }
 
@@ -71,10 +73,21 @@ int main(int argc, char *argv[])
 	
 	*/
 
-    if (set_socket() != NO_ERROR) {
-        free_frame();
+    if(init_client_frame(get_packet_size(FRAME)) != NO_ERROR) {
         return 0;
     }
+
+    set_client_frame_header(get_src_addr(), get_dest_addr());
+
+    init_client_socket();
+    init_client_sockaddr_ll();
+
+    if (set_client_socket() != NO_ERROR) {
+        free_client_frame();
+        return 0;
+    }
+
+    set_client_sockaddr_ll(get_nic_index(get_nic_name()), get_dest_addr());
 
     fflush(stdout);
     (void)pthread_create(&ul_recv_thd_id, NULL, sock_recv_thread, NULL);
@@ -86,8 +99,6 @@ int main(int argc, char *argv[])
 	when the receiver will receive the message, 
 	the receiver will check this message is for his machine or not using this infomation
 	*/
-
-    set_sockaddr_ll(get_nic_index(get_nic_name()), get_dest_addr());
 
     /*
 	this part is preparing the message and sending the message to target
@@ -104,24 +115,24 @@ int main(int argc, char *argv[])
 
 	*/
 
-    set_frame_header(get_src_addr(), get_dest_addr());
-
-    printf("******Sending data using raw socket over  %s \n", NIC_NAME);
+    printf("******Sending data using raw socket over  %s \n", get_nic_name());
 
     while (1)
     {
-        init_data(get_packet_size(DATA));
+        init_client_data(get_packet_size(DATA));
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &client_send);
         putSendTime(client_send.tv_nsec, u16_i);
 
-        set_data(get_packet_size(DATA), u16_i++, client_send.tv_nsec);
+        set_client_data(get_packet_size(DATA), u16_i++, client_send.tv_nsec);
 
         printf("Client sent a message %d\n", u16_i - 1);
 
-        if (send_data(get_packet_size(FRAME)) != NO_ERROR) {
-            free_frame();
-            close_socket();
+        if (send_client_data(get_packet_size(FRAME)) != NO_ERROR) {
+            free_client_frame();
+            close_client_socket();
+
+            return 0;
         }
 
         sleep(1);

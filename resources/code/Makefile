@@ -1,3 +1,5 @@
+all: setup client server
+
 setup: get_configuration.o setup.o
 	gcc -o setup setup.o get_configuration.o
 

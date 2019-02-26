@@ -1,8 +1,8 @@
-#include <stdio.h>
+#include "common_header.h"
 
 FILE * fp;
 
-void openTextFile(char* fileName);
+int openTextFile(char* fileName);
 void closeTextFile();
 
 void writeDataToText(long networkLatency);
