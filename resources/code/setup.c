@@ -23,18 +23,8 @@ iw dev NIC_NAME ocb join BANDWIDTH FREQUENCY MHZ
 iw dev NIC_NAME info
 */
 
-#include "setup.h"
-
-/*
-- EXTERN VARIABLE
-NIC_NAME : save the name of hardware driver we want to use
-BANDWIDTH : save the value of bandwidth
-FREQUENCY : save the value of frequency
-
-*/
-extern char *NIC_NAME;
-int bandwidth;
-int frequency;
+#include "common_header.h"
+#include "get_configuration.h"
 
 int main()
 {
@@ -43,10 +33,8 @@ int main()
 	get_nic_name(): get and save the NIC_NAME value from configuration.txt
 	*/
 
-    char str[255];
-    get_bandwidth_frequency();
-    get_nic_name();
-
+    char command[255];
+    get_configuration();
 	/*
 	this part is executing the bash command in bash
 	using system function, we can give the commands to bash
@@ -60,70 +48,17 @@ int main()
 	iw dev NIC_NAME info								// show the information of the hardware driver
 	*/
 
-    sprintf(str, "/bin/bash -c 'ip link set %s down'", NIC_NAME);
-    system(str);
+    sprintf(command, "/bin/bash -c 'ip link set %s down'", get_nic_name());
+    system(command);
 
-    sprintf(str, "/bin/bash -c 'iw dev %s set type ocb'", NIC_NAME);
-    system(str);
-    sprintf(str, "/bin/bash -c 'ip link set %s up'", NIC_NAME);
-    system(str);
-    sprintf(str, "/bin/bash -c 'iw dev %s ocb join %d %dMHZ'", NIC_NAME, bandwidth, frequency);
-    system(str);
-    sprintf(str, "/bin/bash -c 'iw dev %s info'", NIC_NAME);
-    system(str);
+    sprintf(command, "/bin/bash -c 'iw dev %s set type ocb'", get_nic_name());
+    system(command);
+    sprintf(command, "/bin/bash -c 'ip link set %s up'", get_nic_name());
+    system(command);
+    sprintf(command, "/bin/bash -c 'iw dev %s ocb join %d %dMHZ'", get_nic_name(), get_frequency(), get_bandwitch());
+    system(command);
+    sprintf(command, "/bin/bash -c 'iw dev %s info'", get_nic_name());
+    system(command);
 
     return 0;
-}
-
-void get_bandwidth_frequency()
-{
-    FILE *pFile = NULL;
-    int i = 0;
-
-    pFile = fopen("configuration.txt", "r");
-
-    if (pFile != NULL)
-    {
-        char strTemp[255];
-
-        for (; i < 4; i++)
-        {
-            fgets(strTemp, sizeof(strTemp), pFile); // jump to 4th line
-        }
-
-        if (strTemp != NULL)
-        {
-            char *ptr = strtok(strTemp, ":");
-            ptr = strtok(NULL, "\n");
-            bandwidth = atoi(ptr);
-
-            if (bandwidth < 0 || bandwidth > 10000)
-            {
-                printf("Incorrect format (bandwidth)\n");
-                exit(0);
-            }
-        }
-
-        fgets(strTemp, sizeof(strTemp), pFile);
-
-        if (strTemp != NULL)
-        {
-            char *ptr = strtok(strTemp, ":");
-            ptr = strtok(NULL, "\n");
-            frequency = atoi(ptr);
-
-            if (frequency < 0 || frequency > 300)
-            {
-                printf("Incorrect format (frequency)\n");
-                exit(0);
-            }
-        }
-    }
-    else
-    {
-        printf("File Error\n");
-        exit;
-    }
-
-    fclose(pFile);
 }
