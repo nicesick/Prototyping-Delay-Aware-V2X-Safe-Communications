@@ -18,6 +18,9 @@ server.o: main_header.h mac.h get_nic_index.h result_structure.h packet_size.h s
 client.o: get_nic_index.h result_structure.h write_data.h packet_size.h get_configuration.h control_client.h client.c
 	gcc -pthread -c -o client.o client.c
 
+control_server.o: main_header.h common_header.h control_server.h control_server.c
+	gcc -c -o 
+
 control_client.o: main_header.h common_header.h control_client.h control_client.c
 	gcc -c -o control_client.o control_client.c
 

@@ -64,8 +64,10 @@ long getNetworkLatency(int index) {
     return timespec_diff(circular_array[indexOfArray].sendTime, circular_array[indexOfArray].recvTime) - circular_array[indexOfArray].diff;
 }
 
-void printAllArray() {
-    
+void printData(int index) {
+    printf("\nMESSAGE[%d] LATENCY : %ld\n", index, getMessageLatency(index));
+    printf(" NETWORK[%d] LATENCY : %ld\n", index, getNetworkLatency(index));
+    printf(" DIFF : %ld\n\n", getDiff(index));
 }
 
 

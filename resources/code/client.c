@@ -15,6 +15,7 @@
 #include "get_nic_index.h"
 #include "packet_size.h"
 #include "control_client.h"
+#include "control_server.h"
 #include "get_configuration.h"
 
 void *sock_recv_thread();
@@ -141,163 +142,64 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void *
-sock_recv_thread()
-{
-    struct sockaddr_ll s_src_addr;
-    int32_t s32_sock = -1;
-    int32_t s32_res = -1;
-    uint16_t u16_data_off = 0;
-    uint8_t *pu8a_frame = NULL;
-    uint16_t u16_i = 0;
-    int flag;
-    char *sArr[3] = {
-        NULL,
-    };
-
+void * sock_recv_thread() {
     struct timespec client_recv;
-    long diff;
 
-    printf("Socket receive thread\n");
+    if (init_server_frame(get_packet_size(FRAME)) != NO_ERROR) {
+        return 0;
+    }
+    
+    init_server_socket();
+    init_server_sockaddr_ll();
 
-    u16_data_off = (uint16_t)(ETH_FRAME_LEN - ETH_DATA_LEN);
-
-    pu8a_frame = (uint8_t *)calloc(ETH_FRAME_LEN, 1);
-
-    s32_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-
-    if (-1 == s32_sock)
-    {
-        perror("Could not create the socket");
-        goto LABEL_CLEAN_EXIT;
+    if (set_server_socket() != NO_ERROR) {
+        free_server_frame();
+        return 0;
     }
 
-    printf("Receiver) Socket created\n");
-    if (NULL == pu8a_frame)
-    {
-        printf("Could not get memory for the receive frame\n");
-        goto LABEL_CLEAN_EXIT;
-    }
+    printf("Socket Receiver created\n");
 
-    (void)memset(&s_src_addr, 0, sizeof(s_src_addr));
-
-    s_src_addr.sll_family = AF_PACKET;
-    /*we don't use a protocol above ethernet layer, just use anything here*/
-    s_src_addr.sll_protocol = htons(ETH_P_ALL);
-    s_src_addr.sll_ifindex = get_nic_index((char *)NIC_NAME);
-    s_src_addr.sll_hatype = ARPHRD_ETHER;
-    s_src_addr.sll_pkttype = PACKET_HOST; //PACKET_OTHERHOST;
-    s_src_addr.sll_halen = ETH_ALEN;
-
-    s32_res = bind(s32_sock,
-                   (struct sockaddr *)&s_src_addr,
-                   sizeof(s_src_addr));
-
-    if (-1 == s32_res)
-    {
-        perror("Could not bind to the socket");
-        goto LABEL_CLEAN_EXIT;
+    if (bind_server_socket() != NO_ERROR) {
+        free_server_frame();
+        close_server_socket();
+        return 0;
     }
 
     printf("Socket bind successful\n");
 
     while (1)
     {
-        struct sockaddr_ll s_sender_addr;
-        socklen_t u32_sender_addr_len = sizeof(s_sender_addr);
+        init_server_sockaddr_ll();
 
-        (void)memset(&s_sender_addr, 0, sizeof(s_sender_addr));
+        if (receive_data(get_packet_size(FRAME)) != NO_ERROR) {
+            free_server_frame();
+            close_server_socket();
 
-        s32_res = recvfrom(s32_sock,
-                           pu8a_frame,
-                           ETH_FRAME_LEN,
-                           0,
-                           (struct sockaddr *)&s_sender_addr,
-                           &u32_sender_addr_len);
+            return 0;
+        }
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &client_recv);
 
-        if (-1 == s32_res)
-        {
-            perror("Socket receive failed");
-            break;
-        }
-        else if (s32_res < 0)
-        {
-            perror("Socket receive, error ");
-        }
-        else
-        {
-            u16_i = 0;
+        if (check_data_from_target(get_dest_addr()) == FROM_TARGET) {
+            print_target_mac_addr();
+            parse_data();
 
-            char *str = strtok(&pu8a_frame[u16_data_off], " ");
+            putRecvTime(client_recv.tv_nsec, atoi(get_packet_index()));
+            putDiff(get_packet_timestamp(), get_packet_index());
 
-            flag = 0;
-            for (u16_i = 0; u16_i < sizeof(s_sender_addr.sll_addr) - 2; u16_i++)
-            {
-                if (s_sender_addr.sll_addr[u16_i] != gu8a_dest_mac[u16_i])
-                {
-                    flag = 1;
-                    break;
-                }
-            }
+            printData(get_packet_index());
 
-            if (flag == 0)
-            {
-
-                printf("  Received data from server : ");
-
-                for (u16_i = 0; u16_i < sizeof(s_sender_addr.sll_addr) - 2; u16_i++)
-                {
-                    printf("%02x:", s_sender_addr.sll_addr[u16_i]);
-                }
-                printf("\n");
-
-                u16_i = 0;
-                while (str != NULL)
-                {
-                    sArr[u16_i] = str;
-                    u16_i++;
-
-                    str = strtok(NULL, " ");
+            if (isFull() == FULL) {
+                for (int index = 0; index < MAXIMUM - 1; index++) {
+                    writeDataToText(getNetworkLatency(index));
                 }
 
-                for (u16_i = 0; u16_i < 3; u16_i++)
-                {
-                    if (u16_i == 0)
-                    {
-                        printf("%s ", sArr[u16_i]);
-                    }
-                    else if (u16_i == 1)
-                    {
-                        printf("%s ", sArr[u16_i]);
-                        putRecvTime(client_recv.tv_nsec, atoi(sArr[u16_i]));
-                    }
-                    else if (u16_i == 2)
-                    {
-                        diff = atol(sArr[u16_i]);
-                        putDiff(diff, atoi(sArr[u16_i - 1]));
+                closeTextFile();
+                free_server_frame();
+                close_server_socket();
 
-                        printf("\n MESSAGE[%d] LATENCY : %ld\n", atoi(sArr[1]), getMessageLatency(atoi(sArr[u16_i - 1])));
-                        printf(" NETWORK[%d] LATENCY : %ld\n", atoi(sArr[1]), getNetworkLatency(atoi(sArr[u16_i - 1])));
-                        printf(" DIFF : %ld\n\n", diff);
-
-                        if (isFull() == FULL)
-                        {
-                            for (int k = 0; k < MAXIMUM - 1; k++)
-                            {
-                                writeDataToText(getNetworkLatency(k));
-                            }
-
-                            closeTextFile();
-                            initArray();
-                        }
-                    }
-                }
+                return 0;
             }
         }
     }
-
-LABEL_CLEAN_EXIT:
-    return (NULL);
 }

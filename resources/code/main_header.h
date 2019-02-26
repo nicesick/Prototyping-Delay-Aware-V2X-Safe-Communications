@@ -11,3 +11,6 @@
 #define ERROR_CREATE_SOCKET     1
 #define ERROR_CREATE_FRAME      2
 #define ERROR_SEND_MESSAGE      3
+#define ERROR_BIND_SOCKET       4
+#define ERROR_RECEIVE_DATA      5
+#define FAIL_RECEIVE_DATA       6

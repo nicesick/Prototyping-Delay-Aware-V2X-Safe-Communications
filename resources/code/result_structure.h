@@ -29,6 +29,6 @@ long getDiff(int index);
 long getMessageLatency(int index);
 long getNetworkLatency(int index);
 
-void printAllArray();
+void printData();
 
 long timespec_diff(long start, long stop);
