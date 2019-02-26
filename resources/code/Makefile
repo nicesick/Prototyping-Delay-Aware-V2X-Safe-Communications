@@ -1,5 +1,5 @@
-setup: setup.o get_nic_index.o
-	gcc -o setup setup.o get_nic_index.o
+setup: get_configuration.o setup.o
+	gcc -o setup setup.o get_configuration.o
 
 server: server.o mac.o get_nic_index.o result_structure.o packet_size.o
 	gcc -o server server.o mac.o get_nic_index.o result_structure.o packet_size.o
@@ -7,7 +7,7 @@ server: server.o mac.o get_nic_index.o result_structure.o packet_size.o
 client: client.o mac.o get_nic_index.o result_structure.o write_data.o packet_size.o
 	gcc -pthread -o client client.o mac.o get_nic_index.o result_structure.o write_data.o packet_size.o
 
-setup.o: setup.c setup.h common_header.h get_nic_index.h
+setup.o: setup.h common_header.h get_configuration.h setup.c
 	gcc -c -o setup.o setup.c
 	
 server.o: main_header.h mac.h get_nic_index.h result_structure.h packet_size.h server.c
@@ -25,8 +25,11 @@ write_data.o: write_data.h write_data.c
 result_structure.o: common_header.h result_structure.h result_structure.c
 	gcc -c -o result_structure.o result_structure.c
 
-mac.o: common_header.h mac.h mac.c
-	gcc -c -o mac.o mac.c
+get_configuration.o: common_header.h get_configuration.h get_configuration.c
+	gcc -c -o get_configuration.o get_configuration.c
 
 get_nic_index.o: common_header.h get_nic_index.h get_nic_index.c
 	gcc -c -o get_nic_index.o get_nic_index.c
+
+clean:
+	rm -f *.o setup client server

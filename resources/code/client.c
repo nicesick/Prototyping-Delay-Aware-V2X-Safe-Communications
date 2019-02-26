@@ -12,21 +12,9 @@
 #include <pthread.h>
 #include "main_header.h"
 #include "result_structure.h"
-#include "mac.h"
 #include "write_data.h"
 #include "get_nic_index.h"
 #include "packet_size.h"
-/*
-- EXTERN VARIABLE
-
-NIC_NAME : save the value NIC_NAME using the function "get_nic_name()" from get_nic_index.h
-gu8a_src_mac : save the value SRC_MAC using the function "get_mac_addr()" from mac.h
-gu8a_dest_mac : save the value DEST_MAC using the function "get_mac_addr()" from mac.h
-*/
-
-extern char *NIC_NAME;
-extern uint8_t gu8a_src_mac[6];
-extern uint8_t gu8a_dest_mac[6];
 
 void *sock_recv_thread();
 
