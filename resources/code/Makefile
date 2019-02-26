@@ -1,11 +1,11 @@
 setup: get_configuration.o setup.o
 	gcc -o setup setup.o get_configuration.o
 
-server: server.o mac.o get_nic_index.o result_structure.o packet_size.o
-	gcc -o server server.o mac.o get_nic_index.o result_structure.o packet_size.o
+server: server.o get_nic_index.o result_structure.o packet_size.o
+	gcc -o server server.o get_nic_index.o result_structure.o packet_size.o
 
-client: client.o mac.o get_nic_index.o result_structure.o write_data.o packet_size.o
-	gcc -pthread -o client client.o mac.o get_nic_index.o result_structure.o write_data.o packet_size.o
+client: client.o get_nic_index.o result_structure.o write_data.o packet_size.o control_client.o get_configuration.o
+	gcc -pthread -o client client.o get_nic_index.o result_structure.o write_data.o packet_size.o control_client.o get_configuration.o
 
 setup.o: setup.h common_header.h get_configuration.h setup.c
 	gcc -c -o setup.o setup.c
@@ -13,8 +13,11 @@ setup.o: setup.h common_header.h get_configuration.h setup.c
 server.o: main_header.h mac.h get_nic_index.h result_structure.h packet_size.h server.c
 	gcc -c -o server.o server.c
 
-client.o: main_header.h mac.h get_nic_index.h result_structure.h write_data.h packet_size.h client.c
+client.o: get_nic_index.h result_structure.h write_data.h packet_size.h get_configuration.h control_client.h client.c
 	gcc -pthread -c -o client.o client.c
+
+control_client.o: main_header.h common_header.h control_client.h control_client.c
+	gcc -c -o control_client.o control_client.c
 
 packet_size.o: common_header.h packet_size.h packet_size.c
 	gcc -c -o packet_size.o packet_size.c

@@ -2,12 +2,6 @@
 
 #define MAC_ADDR_LEN        6
 
-#define ERROR_OPEN_FILE     0
-#define ERROR_WRONG_MAC     1
-#define ERROR_WRONG_FRE     2
-#define ERROR_WRONG_BAND    3
-#define NO_ERROR            4
-
 char* NIC_NAME;
 int frequency;
 int bandwidth;

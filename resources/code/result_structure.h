@@ -2,6 +2,7 @@
 #include "common_header.h"
 
 #define MAXIMUM 100
+
 #define FULL 1
 #define NOT_FULL 0
 

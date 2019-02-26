@@ -10,11 +10,12 @@
   *Reference : https://stackoverflow.com/questions/10824827/raw-sockets-communication-over-wifi-receiver-not-able-to-receive-packets
 */
 #include <pthread.h>
-#include "main_header.h"
 #include "result_structure.h"
 #include "write_data.h"
 #include "get_nic_index.h"
 #include "packet_size.h"
+#include "control_client.h"
+#include "get_configuration.h"
 
 void *sock_recv_thread();
 
@@ -34,28 +35,26 @@ int main(int argc, char *argv[])
 	curTime : save the current time for analyzing
 	*/
 
-    struct sockaddr_ll s_dest_addr;
-    int32_t s32_sock = -1;
-    int32_t s32_res = -1;
-    uint16_t u16_data_off = 0;
-    uint16_t u16_i = 0;
-    uint8_t *pu8a_frame = NULL;
-    uint8_t *pu8a_data = NULL;
-    pthread_t ul_recv_thd_id = -1;
-
     struct timespec client_send;
+
+    uint16_t u16_i = 0;
+    pthread_t ul_recv_thd_id = -1;
     /*
 	get_mac_addr() : fill the SRC_MAC and DEST_MAC value to gu8a_src_mac, gu8a_dest_mac array
 	get_nice_name() : fill the NIC_NAME value to NIC_NAME
 	*/
 
-    get_mac_addr();
-    get_nic_name();
-    initArray();
+    get_configuration();
     openTextFile(argv[1]);
     set_packet_size(argv[2]);
+    initArray();
 
-    printf("Socket raw test\n");
+    init_socket();
+    init_sockaddr_ll();
+
+    if(init_frame(get_packet_size(FRAME)) != NO_ERROR) {
+        return 0;
+    }
 
     /*
 	this part is creating frame and socket for sending the message
@@ -72,32 +71,13 @@ int main(int argc, char *argv[])
 	
 	*/
 
-    (void)memset(&s_dest_addr, 0, sizeof(s_dest_addr));
-    u16_data_off = (uint16_t)(ETH_HLEN); //ETH_FRAME_LEN - ETH_DATA_LEN
-
-    pu8a_frame = (uint8_t *)calloc(get_packet_size(1), 1);
-
-    if (NULL == pu8a_frame)
-    {
-        printf("Could not get memory for the transmit frame\n");
-        goto LABEL_CLEAN_EXIT;
+    if (set_socket() != NO_ERROR) {
+        free_frame();
+        return 0;
     }
 
-    pu8a_data = pu8a_frame + u16_data_off;
-
-    s32_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-
-    if (-1 == s32_sock)
-    {
-        perror("Could not create the socket");
-        goto LABEL_CLEAN_EXIT;
-    }
-
-    printf("Client) Socket created\n");
     fflush(stdout);
-
     (void)pthread_create(&ul_recv_thd_id, NULL, sock_recv_thread, NULL);
-
     sleep(1);
 
     /*
@@ -107,23 +87,7 @@ int main(int argc, char *argv[])
 	the receiver will check this message is for his machine or not using this infomation
 	*/
 
-    s_dest_addr.sll_family = AF_PACKET;
-    /*we don't use a protocol above ethernet layer, just use anything here*/
-    s_dest_addr.sll_protocol = htons(ETH_P_ALL);
-    s_dest_addr.sll_ifindex = get_nic_index((char *)NIC_NAME);
-    s_dest_addr.sll_hatype = ARPHRD_ETHER;
-    s_dest_addr.sll_pkttype = PACKET_OTHERHOST; //PACKET_OUTGOING
-    s_dest_addr.sll_halen = ETH_ALEN;
-    /*MAC - begin*/
-    s_dest_addr.sll_addr[0] = gu8a_dest_mac[0];
-    s_dest_addr.sll_addr[1] = gu8a_dest_mac[1];
-    s_dest_addr.sll_addr[2] = gu8a_dest_mac[2];
-    s_dest_addr.sll_addr[3] = gu8a_dest_mac[3];
-    s_dest_addr.sll_addr[4] = gu8a_dest_mac[4];
-    s_dest_addr.sll_addr[5] = gu8a_dest_mac[5];
-    /*MAC - end*/
-    s_dest_addr.sll_addr[6] = 0x00; /*not used*/
-    s_dest_addr.sll_addr[7] = 0x00; /*not used*/
+    set_sockaddr_ll(get_nic_index(get_nic_name()), get_dest_addr());
 
     /*
 	this part is preparing the message and sending the message to target
@@ -140,49 +104,30 @@ int main(int argc, char *argv[])
 
 	*/
 
-    (void)memcpy(pu8a_frame, gu8a_dest_mac, ETH_ALEN);
-    (void)memcpy(pu8a_frame + ETH_ALEN, gu8a_src_mac, ETH_ALEN);
+    set_frame_header(get_src_addr(), get_dest_addr());
 
     printf("******Sending data using raw socket over  %s \n", NIC_NAME);
 
     while (1)
     {
-        (void)memset(&pu8a_frame[u16_data_off], '\0', get_packet_size(2));
+        init_data(get_packet_size(DATA));
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &client_send);
         putSendTime(client_send.tv_nsec, u16_i);
 
-        (void)snprintf((char *)&pu8a_frame[u16_data_off],
-                       get_packet_size(2),
-                       "raw_packet_test %d %ld", u16_i++, client_send.tv_nsec);
+        set_data(get_packet_size(DATA), u16_i++, client_send.tv_nsec);
 
         printf("Client sent a message %d\n", u16_i - 1);
 
-        s32_res = sendto(s32_sock,
-                         pu8a_frame,
-                         get_packet_size(1),
-                         0,
-                         (struct sockaddr *)&s_dest_addr,
-                         sizeof(s_dest_addr));
-
-        if (-1 == s32_res)
-        {
-            perror("Socket send failed");
-            goto LABEL_CLEAN_EXIT;
+        if (send_data(get_packet_size(FRAME)) != NO_ERROR) {
+            free_frame();
+            close_socket();
         }
 
         sleep(1);
     }
 
-LABEL_CLEAN_EXIT:
-    if (s32_sock > 0)
-    {
-        close(s32_sock);
-    }
-
-    printf("***** Raw Socket test- end\n");
-
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 void *
