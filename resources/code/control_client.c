@@ -30,7 +30,7 @@ void init_client_data(int data_size) {
 }
 
 void set_client_data(int data_size, char* string, int index, long timestamp) {
-    printf("Client sent a message %d\n", index);
+    printf("  Client sent a message %d\n", index);
 
     (void)snprintf((char *)&pu8a_client_frame[u16_client_data_off],
         data_size,"%s %d %ld", string, index, timestamp);

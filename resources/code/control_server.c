@@ -99,7 +99,12 @@ int receive_data(int frame_size) {
 int check_data_from_target(uint8_t* target_address) {
     for (int index = 0; index < sizeof(s_src_addr.sll_addr) - 2; index++) {
         if (s_src_addr.sll_addr[index] != target_address[index]) {
-                printf("  Received by unexpected target : %s\n", pu8a_server_data);
+/*
+This command print the entire message when the server receive unexpected message
+But during test, it will get look back messages
+*/
+
+//                printf("  Received by unexpected target : %s\n", pu8a_server_data);
 
                 return NOT_FROM_TARGET;
             }
@@ -154,7 +159,7 @@ void print_target_mac_addr() {
 }
 
 void print_packet_string() {
-    printf("%s ", get_packet_string());
+    printf("  %s ", get_packet_string());
 }
 
 void print_packet_index() {
