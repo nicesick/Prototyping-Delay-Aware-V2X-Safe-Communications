@@ -12,22 +12,12 @@
   *Reference : https://stackoverflow.com/questions/10824827/raw-sockets-com$
 */
 
-#include "main_header.h"
 #include "result_structure.h"
-#include "mac.h"
 #include "get_nic_index.h"
+#include "get_configuration.h"
 #include "packet_size.h"
-/*
-- EXTERN VARIABLE
-
-NIC_NAME : save the value NIC_NAME using the function "get_nic_name()" from get_nic_index.h
-gu8a_src_mac : save the value SRC_MAC using the function "get_mac_addr()" from mac.h
-gu8a_dest_mac : save the value DEST_MAC using the function "get_mac_addr()" from mac.h
-*/
-
-extern char *NIC_NAME;
-extern uint8_t gu8a_src_mac[6];
-extern uint8_t gu8a_dest_mac[6];
+#include "control_server.h"
+#include "control_client.h"
 
 int main(int argc, char *argv[])
 {
@@ -59,28 +49,20 @@ int main(int argc, char *argv[])
 			parse and save the each values to sArr array
 	*/
 
-    struct sockaddr_ll s_src_addr;
-    int32_t s32_sock = -1;
-    int32_t s32_res = -1;
-    uint16_t u16_data_off = 0;
-    uint8_t *pu8a_frame = NULL;
-    uint16_t u16_i = 0;
     struct timespec server_send, server_recv;
-    long temp;
-    double avg = 0;
-    char *sArr[3] = {
-        NULL,
-    };
-    int flag = 0;
 
     /*
 	get_mac_addr() : fill the SRC_MAC and DEST_MAC value to gu8a_src_mac, gu8a_dest_mac array
 	get_nic_name() : fill the NIC_NAME value to NIC_NAME
 	*/
 
-    get_mac_addr();
-    get_nic_name();
-    set_packet_size(argv[1]);
+    if (get_configuration() != NO_ERROR) {
+        return 0;
+    }
+
+    if (set_packet_size(argv[1]) != NO_ERROR) {
+        return 0;
+    }
     /*
 	this part is creating frame and socket for receiving the message
 	there are some variable to save the value of frame and socket
@@ -97,58 +79,24 @@ int main(int argc, char *argv[])
 
 	*/
 
-    (void)memset(&s_src_addr, 0, sizeof(s_src_addr));
-    u16_data_off = (uint16_t)(ETH_HLEN); //ETH_FRAME_LEN - ETH_DATA_LEN
-
-    pu8a_frame = (uint8_t *)calloc(get_packet_size(1), 1);
-    if (NULL == pu8a_frame)
-    {
-        printf("Could not get memory for the receive frame\n");
-        goto LABEL_CLEAN_EXIT;
+    if (init_server_frame(get_packet_size(FRAME)) != NO_ERROR) {
+        return 0;
     }
 
-    s32_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    init_server_socket();
+    init_server_sockaddr_ll();
+    set_server_sockaddr_ll(get_nic_index(get_nic_name()));
 
-    if (-1 == s32_sock)
-    {
-        perror("Could not create the socket");
-        goto LABEL_CLEAN_EXIT;
-    }
-    printf("Server) Socket created\n");
-
-    /*
-	this part is saving the values for target socket
-
-	when the receiver will receive the message,
-	the receiver will check this message is for his machine or not using this infomation
-	*/
-
-    s_src_addr.sll_family = AF_PACKET;
-    /*we don't use a protocol above ethernet layer, just use anything here*/
-    s_src_addr.sll_protocol = htons(ETH_P_ALL);
-    s_src_addr.sll_ifindex = get_nic_index((char *)NIC_NAME);
-    s_src_addr.sll_hatype = ARPHRD_ETHER;
-    s_src_addr.sll_pkttype = PACKET_HOST; //PACKET_OTHERHOST;
-    s_src_addr.sll_halen = ETH_ALEN;
-
-    s_src_addr.sll_addr[0] = gu8a_src_mac[0];
-    s_src_addr.sll_addr[1] = gu8a_src_mac[1];
-    s_src_addr.sll_addr[2] = gu8a_src_mac[2];
-    s_src_addr.sll_addr[3] = gu8a_src_mac[3];
-    s_src_addr.sll_addr[4] = gu8a_src_mac[4];
-    s_src_addr.sll_addr[5] = gu8a_src_mac[5];
-
-    s32_res = bind(s32_sock,
-                   (struct sockaddr *)&s_src_addr,
-                   sizeof(s_src_addr));
-
-    if (-1 == s32_res)
-    {
-        perror("Could not bind to the socket");
-        goto LABEL_CLEAN_EXIT;
+    if (set_server_socket() != NO_ERROR) {
+        free_server_frame();
+        return 0;
     }
 
-    printf("Socket bind successful\n");
+    if (bind_server_socket() != NO_ERROR) {
+        free_server_frame();
+        close_server_socket();
+        return 0;
+    }
 
     /*
 	this part is preparing the message and receiving the message from target
@@ -187,123 +135,74 @@ int main(int argc, char *argv[])
 	and will be devided by sArr[1] value
 	*/
 
-    while (1)
-    {
-        struct sockaddr_ll s_sender_addr;
-        socklen_t u32_sender_addr_len = sizeof(s_sender_addr);
-
-        (void)memset(&s_sender_addr, 0, sizeof(s_sender_addr));
-
-        s32_res = recvfrom(s32_sock,
-                           pu8a_frame,
-                           get_packet_size(1),
-                           0,
-                           (struct sockaddr *)&s_sender_addr,
-                           &u32_sender_addr_len);
-        clock_gettime(CLOCK_MONOTONIC_RAW, &server_recv);
-
-        if (-1 == s32_res)
-        {
-            perror("Socket receive failed");
-            break;
-        }
-        else if (s32_res < 0)
-        {
-            perror("Socket receive, error ");
-        }
-        else
-        {
-            u16_i = 0;
-            printf("==============================================\n");
-            printf("Received data from ");
-
-            for (u16_i = 0; u16_i < sizeof(s_sender_addr.sll_addr) - 2; u16_i++)
-            {
-                printf("%02x:", s_sender_addr.sll_addr[u16_i]);
-            }
-
-            printf("\n");
-            char *str = strtok(&pu8a_frame[u16_data_off], " ");
-            u16_i = 0;
-
-            flag = 0;
-            for (u16_i = 0; u16_i < sizeof(s_sender_addr.sll_addr) - 2; u16_i++)
-            {
-                if (s_sender_addr.sll_addr[u16_i] != gu8a_src_mac[u16_i])
-                {
-                    flag = 1;
-                    break;
-                }
-            }
-
-            if (flag == 1)
-            {
-                printf("Server received data from others : %s\n\n", &pu8a_frame[u16_data_off]);
-            }
-            else
-            {
-                u16_i = 0;
-                while (str != NULL)
-                {
-                    sArr[u16_i] = str;
-                    u16_i++;
-
-                    str = strtok(NULL, " ");
-                }
-
-                printf("  Received data from client : ");
-
-                for (u16_i = 0; u16_i < 3; u16_i++)
-                {
-                    if (u16_i == 0)
-                    {
-                        printf("%s ", sArr[u16_i]);
-                    }
-                    else if (u16_i == 1)
-                    {
-                        printf("%s ", sArr[u16_i]);
-                    }
-
-                    else if (u16_i == 2)
-                    {
-                        temp = atol(sArr[u16_i]);
-
-                        if (temp <= 0)
-                        {
-                            printf("Unexpected packet\n");
-                            break;
-                        }
-
-                        printf("msg sent at %ld (ns)\n", temp);
-
-                        (void)memcpy(pu8a_frame, gu8a_src_mac, ETH_ALEN);
-                        (void)memcpy(pu8a_frame + ETH_ALEN, gu8a_dest_mac, ETH_ALEN);
-
-                        clock_gettime(CLOCK_MONOTONIC_RAW, &server_send);
-
-                        (void)snprintf((char *)&pu8a_frame[u16_data_off],
-                                       get_packet_size(2),
-                                       "Index/Diff %d %ld", atoi(sArr[u16_i - 1]), timespec_diff(server_recv.tv_nsec, server_send.tv_nsec));
-
-
-                        s32_res = sendto(s32_sock,
-                                         pu8a_frame,
-                                         get_packet_size(1),
-                                         0,
-                                         (struct sockaddr *)&s_src_addr,
-                                         sizeof(s_src_addr));
-
-                        if (-1 == s32_res)
-                        {
-                            perror("Socket send failed");
-                            goto LABEL_CLEAN_EXIT;
-                        }
-                    }
-                }
-            }
-        }
+    if(init_client_frame(get_packet_size(FRAME)) != NO_ERROR) {
+        free_server_frame();
+        close_server_socket();
+        return 0;
     }
 
-LABEL_CLEAN_EXIT:
-    return EXIT_SUCCESS;
+    set_client_frame_header(get_dest_addr(), get_src_addr());
+
+    init_client_socket();
+    init_client_sockaddr_ll();
+
+    if (set_client_socket() != NO_ERROR) {
+        free_server_frame();
+        close_server_socket();
+        free_client_frame();
+        return 0;
+    }
+
+    set_client_sockaddr_ll(get_nic_index(get_nic_name()), get_src_addr());
+
+    while (1)
+    {
+        init_server_sockaddr_ll();
+
+        if (receive_data(get_packet_size(FRAME)) != NO_ERROR) {
+            free_server_frame();
+            close_server_socket();
+            free_client_frame();
+            close_client_socket();
+            return 0;
+        }
+
+        clock_gettime(CLOCK_MONOTONIC_RAW, &server_recv);
+        
+        printf("==============================================\n");
+        print_target_mac_addr();
+
+        if (check_data_from_target(get_src_addr()) == FROM_TARGET) {
+            parse_data();
+
+            if (check_correct_data("raw_packet_test") != CORRECT_DATA) {
+                continue;
+            }
+
+            print_packet_string();
+            print_packet_index();
+            print_packet_timestamp();
+
+            init_client_data(get_packet_size(DATA));
+
+            clock_gettime(CLOCK_MONOTONIC_RAW, &server_send);
+
+            set_client_data(get_packet_size(DATA), "Index/Diff", \
+            atoi(get_packet_index()), \
+            timespec_diff(server_recv.tv_nsec, server_send.tv_nsec));
+
+            if (send_client_data(get_packet_size(FRAME)) != NO_ERROR) {
+                free_server_frame();
+                close_server_socket();
+                free_client_frame();
+                close_client_socket();
+
+                return 0;
+            }
+        }
+
+        printf("==============================================\n");
+    }
+
+    return 0;
 }

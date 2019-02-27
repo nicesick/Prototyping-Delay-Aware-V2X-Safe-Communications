@@ -125,9 +125,9 @@ int main(int argc, char *argv[])
         clock_gettime(CLOCK_MONOTONIC_RAW, &client_send);
         putSendTime(client_send.tv_nsec, u16_i);
 
-        set_client_data(get_packet_size(DATA), u16_i++, client_send.tv_nsec);
-
-        printf("Client sent a message %d\n", u16_i - 1);
+        set_client_data(get_packet_size(DATA), "raw_packet_test", \
+        u16_i++, \
+        client_send.tv_nsec);
 
         if (send_client_data(get_packet_size(FRAME)) != NO_ERROR) {
             free_client_frame();
@@ -151,21 +151,18 @@ void * sock_recv_thread() {
     
     init_server_socket();
     init_server_sockaddr_ll();
+    set_server_sockaddr_ll(get_nic_index(get_nic_name()));
 
     if (set_server_socket() != NO_ERROR) {
         free_server_frame();
         return 0;
     }
 
-    printf("Socket Receiver created\n");
-
     if (bind_server_socket() != NO_ERROR) {
         free_server_frame();
         close_server_socket();
         return 0;
     }
-
-    printf("Socket bind successful\n");
 
     while (1)
     {
@@ -180,14 +177,24 @@ void * sock_recv_thread() {
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &client_recv);
 
+        printf("==============================================\n");
+        print_target_mac_addr();
+
         if (check_data_from_target(get_dest_addr()) == FROM_TARGET) {
-            print_target_mac_addr();
             parse_data();
 
-            putRecvTime(client_recv.tv_nsec, atoi(get_packet_index()));
-            putDiff(get_packet_timestamp(), get_packet_index());
+            if (check_correct_data("Index/Diff") != CORRECT_DATA) {
+                continue;
+            }
 
-            printData(get_packet_index());
+            print_packet_string();
+            print_packet_index();
+            print_packet_timestamp();
+            
+            putRecvTime(client_recv.tv_nsec, atoi(get_packet_index()));
+            putDiff(atol(get_packet_timestamp()), atoi(get_packet_index()));
+
+            printData(atoi(get_packet_index()));
 
             if (isFull() == FULL) {
                 for (int index = 0; index < MAXIMUM - 1; index++) {
@@ -201,5 +208,7 @@ void * sock_recv_thread() {
                 return 0;
             }
         }
+
+        printf("==============================================\n");
     }
 }

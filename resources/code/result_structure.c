@@ -65,7 +65,7 @@ long getNetworkLatency(int index) {
 }
 
 void printData(int index) {
-    printf("\nMESSAGE[%d] LATENCY : %ld\n", index, getMessageLatency(index));
+    printf("\n MESSAGE[%d] LATENCY : %ld\n", index, getMessageLatency(index));
     printf(" NETWORK[%d] LATENCY : %ld\n", index, getNetworkLatency(index));
     printf(" DIFF : %ld\n\n", getDiff(index));
 }

@@ -1,57 +1,44 @@
 #include "control_server.h"
 
 int init_server_frame(int frame_size) {
-    u16_data_off = (uint16_t) ETH_HLEN;
-    pu8a_frame   = (uint8_t *) calloc(1, frame_size);
+    u16_server_data_off = (uint16_t) ETH_HLEN;
+    pu8a_server_frame   = (uint8_t *) calloc(1, frame_size);
 
-    if (pu8a_frame == NULL) {
+    if (pu8a_server_frame == NULL) {
         perror("Could not get memory for the transmit frame\n");
         return ERROR_CREATE_FRAME;
     }
 
-    pu8a_data    = pu8a_frame + u16_data_off;
+    pu8a_server_data    = pu8a_server_frame + u16_server_data_off;
 
     return NO_ERROR;
 }
 
-void set_server_frame_header(uint8_t* src_addr, uint8_t* dest_addr) {
-    (void)memcpy(pu8a_frame, dest_addr, ETH_ALEN);
-    (void)memcpy(pu8a_frame + ETH_ALEN, src_addr, ETH_ALEN);
-}
-
 void free_server_frame() {
-    free(pu8a_frame);
-    pu8a_frame = NULL;
-    pu8a_data  = NULL;
-}
-
-void init_server_data(int data_size) {
-    (void)memset(&pu8a_frame[u16_data_off], '\0', data_size);
-}
-
-void set_server_data(int data_size, int index, long timestamp) {
-    (void)snprintf((char *)&pu8a_frame[u16_data_off],
-        data_size,"raw_packet_test %d %ld", index, timestamp);
+    free(pu8a_server_frame);
+    pu8a_server_frame = NULL;
+    pu8a_server_data  = NULL;
 }
 
 void init_server_socket() {
-    s32_sock = -1;
+    s32_server_sock = -1;
 }
 
 int set_server_socket() {
-    s32_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    s32_server_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
-    if (s32_sock == -1) {
+    if (s32_server_sock == -1) {
         perror("Could not create the socket");
 
         return ERROR_CREATE_SOCKET;
     }
 
+    printf("Receive Socket created\n");
     return NO_ERROR;
 }
 
 int bind_server_socket() {
-    int resultFunction = bind(s32_sock,
+    int resultFunction = bind(s32_server_sock,
                    (struct sockaddr *)&s_src_addr,
                    sizeof(s_src_addr));
 
@@ -65,8 +52,8 @@ int bind_server_socket() {
 }
 
 void close_server_socket() {
-    if (s32_sock > 0) {
-        close(s32_sock);
+    if (s32_server_sock > 0) {
+        close(s32_server_sock);
     }
 }
 
@@ -87,8 +74,8 @@ void set_server_sockaddr_ll(int32_t nic_index) {
 }
 
 int receive_data(int frame_size) {
-    int resultFunction = recvfrom(s32_sock,
-                           pu8a_frame,
+    int resultFunction = recvfrom(s32_server_sock,
+                           pu8a_server_frame,
                            frame_size,
                            0,
                            (struct sockaddr *)&s_src_addr,
@@ -110,11 +97,9 @@ int receive_data(int frame_size) {
 }
 
 int check_data_from_target(uint8_t* target_address) {
-    char* message = strtok(&pu8a_frame[u16_data_off], " ");
-
     for (int index = 0; index < sizeof(s_src_addr.sll_addr) - 2; index++) {
         if (s_src_addr.sll_addr[index] != target_address[index]) {
-                printf("Received by unexpected target : ignore this message\n");
+                printf("  Received by unexpected target : %s\n", pu8a_server_data);
 
                 return NOT_FROM_TARGET;
             }
@@ -123,29 +108,27 @@ int check_data_from_target(uint8_t* target_address) {
     return FROM_TARGET;
 }
 
-void print_target_mac_addr() {
-    printf("  Received data from server : ");
-
-    for (int index = 0; index < sizeof(s_src_addr.sll_addr) - 2; index++) {
-        printf("%02x:", s_src_addr.sll_addr[index]);
-    }
-
-    printf("\n");
-}
-
 void parse_data() {
     char* messageToken = NULL;
 
     for (int index = 0; index < TOKEN_NUM; index++) {
-        sArr[index] = NULL;
+        sArr[index] = 0;
     }
     
-    messageToken = strtok(&pu8a_frame[u16_data_off], " ");
+    messageToken = strtok(&pu8a_server_frame[u16_server_data_off], " ");
 
     for (int index = 0; index < TOKEN_NUM; index++) {
         sArr[index] = messageToken;
         messageToken = strtok(NULL, " ");
     }
+}
+
+int check_correct_data(char* string) {
+    if (strcmp(get_packet_string(),string) || atol(get_packet_timestamp()) < 0) {
+        return NOT_CORRECT_DATA;
+    }
+
+    return CORRECT_DATA;
 }
 
 char* get_packet_string() {
@@ -158,4 +141,26 @@ char* get_packet_index() {
 
 char* get_packet_timestamp() {
     return sArr[2];
+}
+
+void print_target_mac_addr() {
+    printf("  Received data from ");
+
+    for (int index = 0; index < sizeof(s_src_addr.sll_addr) - 2; index++) {
+        printf("%02x:", s_src_addr.sll_addr[index]);
+    }
+
+    printf("\n");
+}
+
+void print_packet_string() {
+    printf("%s ", get_packet_string());
+}
+
+void print_packet_index() {
+    printf("%s ", get_packet_index());
+}
+
+void print_packet_timestamp() {
+    printf("msg sent at %s (ns)\n", get_packet_timestamp());
 }
