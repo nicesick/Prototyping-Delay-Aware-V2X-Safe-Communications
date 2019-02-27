@@ -18,6 +18,8 @@ Each get functions can get the value from the index's place
 MessageLatency will be calculated as recvTime - sendTime
 NetworkLatency will be calculated as recvTime - sendTime - diff
 
+If the array is full, isFull function will return FULL flag
+
             (index % MAXIMUM)
                 v
                 0        1       2       3       4       5       6       ...
@@ -61,6 +63,6 @@ long getDiff(int index);
 long getMessageLatency(int index);
 long getNetworkLatency(int index);
 
-void printData();
+void printData(int index);
 
 long timespec_diff(long start, long stop);
