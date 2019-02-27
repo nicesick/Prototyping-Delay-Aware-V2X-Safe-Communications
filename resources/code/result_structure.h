@@ -1,3 +1,35 @@
+/*
+Coded by Hyunjae Lee and Jihun Lim
+
+This header file is for saving and calculating the latency
+
+In this header, There is the Array to save the value to container
+Each index is consist of 3 part
+
+sendTime : the time that the client send the message to the server
+recvTime : the time that the client receive the message from the server
+diff     : the time from the server receive the message from the client to the server send the message back to the client
+
+Each put functions can put the value to the proper index's place
+The index will be calculated as index % MAXIMUM to avoid outbound error
+
+Each get functions can get the value from the index's place
+
+MessageLatency will be calculated as recvTime - sendTime
+NetworkLatency will be calculated as recvTime - sendTime - diff
+
+            (index % MAXIMUM)
+                v
+                0        1       2       3       4       5       6       ...
+            =========================================================
+sendTime    |       |       |       |       |       |       |       |     
+            =========================================================
+recvTime    |       |       |       |       |       |       |       |
+            =========================================================
+diff        |       |       |       |       |       |       |       |
+            =========================================================
+*/
+
 #include <time.h>
 #include "common_header.h"
 

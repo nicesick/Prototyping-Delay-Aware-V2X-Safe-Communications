@@ -14,7 +14,7 @@ int32_t get_nic_index(char *nic_card_name)
     {
         perror("get_nic_index(): socket failed");
         
-        return ERROR_SOCKET;
+        return ERROR_CREATE_SOCKET;
     }
 
     s_ifr.ifr_addr.sa_family = AF_INET;

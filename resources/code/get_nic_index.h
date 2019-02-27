@@ -1,10 +1,11 @@
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <linux/sockios.h>
-#include <linux/if.h>
-#include "common_header.h"
+/*
+Coded by Hyunjae Lee and Jihun Lim
 
-#define ERROR_SOCKET    -1
-#define ERROR_IOCTL     -2
+This header file is for getting NIC_INDEX of Network device
+The user can get NIC_INDEX value using get_nic_index() function
+*/
+
+#include "main_header.h"
+#include "common_header.h"
 
 int32_t get_nic_index(char *nic_card_name);

@@ -9,7 +9,7 @@ server: server.o get_nic_index.o result_structure.o packet_size.o control_client
 client: client.o get_nic_index.o result_structure.o write_data.o packet_size.o control_client.o get_configuration.o control_server.o
 	gcc -pthread -o client client.o get_nic_index.o result_structure.o write_data.o packet_size.o control_client.o get_configuration.o control_server.o
 
-setup.o: setup.h common_header.h get_configuration.h setup.c
+setup.o: common_header.h get_configuration.h setup.c
 	gcc -c -o setup.o setup.c
 	
 server.o: get_nic_index.h result_structure.h packet_size.h get_configuration.h control_client.h control_server.h server.c

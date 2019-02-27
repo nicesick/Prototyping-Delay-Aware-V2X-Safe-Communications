@@ -29,12 +29,13 @@ iw dev NIC_NAME info
 int main()
 {
 	/*
-	get_bandwidth_frequency(): get and save bandwidth and frenquency values from configuration.txt
-	get_nic_name(): get and save the NIC_NAME value from configuration.txt
+	command[255] : save the command
+	get_configuration() : from configuration.txt, save the values to the variables
 	*/
 
     char command[255];
     get_configuration();
+
 	/*
 	this part is executing the bash command in bash
 	using system function, we can give the commands to bash

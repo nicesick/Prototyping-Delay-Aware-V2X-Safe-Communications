@@ -177,38 +177,36 @@ void * sock_recv_thread() {
 
         clock_gettime(CLOCK_MONOTONIC_RAW, &client_recv);
 
-        printf("==============================================\n");
-        print_target_mac_addr();
-
         if (check_data_from_target(get_dest_addr()) == FROM_TARGET) {
             parse_data();
 
-            if (check_correct_data("Index/Diff") != CORRECT_DATA) {
-                continue;
-            }
+            if (check_correct_data("Index/Diff") == CORRECT_DATA) {
+                printf("==============================================\n");
+                print_target_mac_addr();
 
-            print_packet_string();
-            print_packet_index();
-            print_packet_timestamp();
-            
-            putRecvTime(client_recv.tv_nsec, atoi(get_packet_index()));
-            putDiff(atol(get_packet_timestamp()), atoi(get_packet_index()));
+                print_packet_string();
+                print_packet_index();
+                print_packet_timestamp();
+                
+                putRecvTime(client_recv.tv_nsec, atoi(get_packet_index()));
+                putDiff(atol(get_packet_timestamp()), atoi(get_packet_index()));
 
-            printData(atoi(get_packet_index()));
+                printData(atoi(get_packet_index()));
 
-            if (isFull() == FULL) {
-                for (int index = 0; index < MAXIMUM - 1; index++) {
-                    writeDataToText(getNetworkLatency(index));
+                if (isFull() == FULL) {
+                    for (int index = 0; index < MAXIMUM - 1; index++) {
+                        writeDataToText(getNetworkLatency(index));
+                    }
+
+                    closeTextFile();
+                    free_server_frame();
+                    close_server_socket();
+
+                    return 0;
                 }
 
-                closeTextFile();
-                free_server_frame();
-                close_server_socket();
-
-                return 0;
+                printf("==============================================\n");
             }
         }
-
-        printf("==============================================\n");
     }
 }
