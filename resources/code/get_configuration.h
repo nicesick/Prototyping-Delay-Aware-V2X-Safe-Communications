@@ -13,7 +13,7 @@ FREQUENCY:
 BANDWIDTH:
 
 The user can save the values using get_configuration() function
-And use the values using the function started with get_
+And use the values using the function started with get_* function
 */
 
 #include "common_header.h"

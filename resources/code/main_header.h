@@ -36,9 +36,24 @@ FAIL_RECEIVE_DATA   : if receiving the data is failed
 
 /*
 This error code will be used in get_nic_index.c
-The function will return this error code according to below condifion
+The function will return this error code according to below condition
 
 ERROR_IOCTL : if finding NIC_INDEX is failed
 */
 
 #define ERROR_IOCTL             7
+
+/*
+This flag code will be used in control_server.c
+The function will return this flag code according to below condition
+
+FROM_TARGET         : if the received message is from target
+NOT_FROM_TARGET     : if the received message isn't from target
+CORRECT_DATA        : if the received message has correct start string
+NOT_CORRECT_DATA    : if the received message hasn't correct start string
+*/
+
+#define FROM_TARGET             8
+#define NOT_FROM_TARGET         9
+#define CORRECT_DATA            10
+#define NOT_CORRECT_DATA        11
