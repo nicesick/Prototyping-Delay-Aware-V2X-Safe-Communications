@@ -72,13 +72,13 @@ Figure 5 to 8 show that Network latency (ns) over 100 iterations when 5m distanc
 
 Figure 9 shows that Network latency (ns) over 100 iterations when two boards are running on Realtime Kernel with priority 1 for Client and Server and priority 49 for Hackbench.
 
-![result_cs1 h49](https://user-images.githubusercontent.com/29877872/53449141-77cc9380-3a19-11e9-9bbb-8d7148ff7573.png)  
+![9](https://user-images.githubusercontent.com/29877872/53495326-07b52080-3aa0-11e9-9cc1-a15ca8871a4a.png)   
 
 ## Conclustion  
 
- __1. Real time Kernel and Voluntary Kernel have just few Network Latency difference over all situation but in the case when CS=1, H=49, Real time Kernel can only communicate each other.    
-   2. Main difference between between two kinds of distances is the size of tips on the graphs. When tips happend, tips from situation with distance 5m are arranged at way higher points.  
-   3. There is an interesting result from Figure 6.__  
+ __1. Performance of Realtime Kernel is around 5 to 10 times better than performance of voluntary kernel on average.  
+   2. Main difference between two kinds of distances is the size of tips on the graphs. When tips happend, tips from situation with distance 5m are arranged at way higher points. => It means that Real time Kernel is more deterministic and stable.  
+   3. In the case when CS=1, H=49, Real time Kernel can only communicate each other.__        
     
 ### *Repository structure*  
  ┌─── ___documents ::___  
