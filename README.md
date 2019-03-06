@@ -36,11 +36,12 @@ make server
 ```
 
 Execute them on your specific model (you probably need to move the files first)
+As for client, there are two parameters. 1st one is text file that outputs network latency for 100 iterations and 2nd one is packet size. As for server, there is one parameter which is packet size.
 
 ```
 sudo ./setup
-sudo ./client
-sudo ./server
+sudo ./client [output.txt] [SMALL or LARGE]
+sudo ./server [SMALL or LARGE]
 ```
 
 If you want to set up different scheduling algorithms and different priority on them, please refer to *useful_commands.txt*
@@ -49,8 +50,36 @@ If you want to set up different scheduling algorithms and different priority on 
 
 ![intro](https://user-images.githubusercontent.com/29877872/53198944-0908c800-361e-11e9-843e-e2157689753f.png)
 
-We assume that all nodes know other nodes's MAC addresses that will communicate with. When the client sends a message to the server, the message has its own index and the time when it was sent. After taking network latency, the server will receive the message and get the time when the message is received. Then, the server will calculate __Diff__ which is execution time by subtracting received time from the time just before sending back the decoded message to the client. When the client sends back the message, it will calculate __Message latency__. __Network latency__ is a result of subtraction __Diff__ from __Message latency.__
+We assume that all nodes know other nodes's MAC addresses that will communicate with. When the client sends a message to the server, the message has its own index and the time when it was sent. After taking network latency, the server will receive the message and get the time when the message is received. Then, the server will calculate __Diff__ which is execution time by subtracting received time from the time just before sending back the decoded message to the client. When the client gets back the message, it will calculate __Message latency__. __Network latency__ is a result of subtraction __Diff__ from __Message latency.__
 
+### Result
+
+LARGE packet is ETH_FRAME_LEN(1514) and SMALL packet is ETH_ZLEN(60).
+  
+Figure 1 and Figure 5 run on Real time Kernel with LARGE packet.  
+Figure 2 and Figure 6 run on Real time Kernel with SMALL packet.  
+Figure 3 and Figure 7 run on Voluntary Kernel with LARGE packet.  
+Figure 4 and Figure 8 run on Voluntary Kernel with SMALL packet.  
+
+Figure 1 to 4 show that Network latency (ns) over 100 iterations when 1m distance between two boards. CS=49, H=49 means Client and Server run with priority 49 and Hackbench runs with priority 49.   
+
+![result_1m](https://user-images.githubusercontent.com/29877872/53449096-608da600-3a19-11e9-87d2-1b6858e2c340.png)  
+
+Figure 5 to 8 show that Network latency (ns) over 100 iterations when 5m distance with a wall between two boards. CS=49, H=49 means Client and Server run with priority 49 and Hackbench runs with priority 49.  
+
+![result_5m](https://user-images.githubusercontent.com/29877872/53449124-6e432b80-3a19-11e9-83a1-87d56c68b6fa.png)  
+
+
+Figure 9 shows that Network latency (ns) over 100 iterations when two boards are running on Realtime Kernel with priority 1 for Client and Server and priority 49 for Hackbench.
+
+![9](https://user-images.githubusercontent.com/29877872/53495326-07b52080-3aa0-11e9-9cc1-a15ca8871a4a.png)   
+
+## Conclustion  
+
+ __1. Performance of Realtime Kernel is around 5 to 10 times better than performance of voluntary kernel on average.  
+   2. Main difference between two kinds of distances is the size of tips on the graphs. When tips happend, tips from situation with distance 5m are arranged at way higher points. => It means that Real time Kernel is more deterministic and stable.  
+   3. In the case when CS=1, H=49, Real time Kernel can only communicate each other.__        
+    
 ### *Repository structure*  
  ┌─── ___documents ::___  
  │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── __presentation ::__  
@@ -61,6 +90,9 @@ We assume that all nodes know other nodes's MAC addresses that will communicate 
  │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── work_history.txt (What we worked everyday for 2 months)  
  ├─── ___resources ::___  
  │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── __code ::__  
+ │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── __data_visualization ::__  
+ │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── __data ::__  
+ │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── app.py  
  │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── 80211p_v4.9.patch  
  │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── kernel.zip (the compressed files for our specific model)  
  └─── ___README.md___  
