@@ -22,18 +22,18 @@ pu8a_frame and pu8a_data variables are linked to each address of frame and paylo
 To use the client socket, you have to follow below steps
 
         init_client_frame()                     init_client_socket()                init_client_sockaddr_ll()
-        : ERROR_CREATE_FRAME					: ERROR_CREATE_SOCKET							|
-				|                                       |                                       |
+        : ERROR_CREATE_FRAME			: ERROR_CREATE_SOCKET				|
+		|                                       |                                       |
      set_client_frame_header()                  set_client_socket()                  set_client_sockaddr_ll()
                 |                                       |                                       |
                 ---------------------------------------------------------------------------------
-														|
-												init_client_data()
-														|
-												set_client_data()
-														|
-												send_client_data()
-												: ERROR_SEND_MESSAGE
+							|
+						init_client_data()
+							|
+						set_client_data()
+							|
+						send_client_data()
+						: ERROR_SEND_MESSAGE
 
 
 init_client_frame() 		: Alloc the space for frame packet and Save the frame and data point
