@@ -1,7 +1,15 @@
 #include "write_data.h"
 
-void openTextFile(char* fileName) {
+int openTextFile(char* fileName) {
     fp = fopen(fileName,"w");
+
+    if (fp == NULL) {
+        perror("Cannot open the file\n");
+
+        return ERROR_OPEN_FILE;
+    }
+
+    return NO_ERROR;
 }
 
 void closeTextFile() {
