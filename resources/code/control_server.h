@@ -29,8 +29,8 @@ pu8a_frame and pu8a_data variables are linked to each address of frame and paylo
 To use the server socket, you have to follow below steps
 
         init_server_frame()                     init_server_socket()                init_server_sockaddr_ll()
-        : ERROR_CREATE_FRAME					: ERROR_CREATE_SOCKET							|
-				|                                       |                                       |
+        : ERROR_CREATE_FRAME			: ERROR_CREATE_SOCKET				|
+		|                                       |                                       |
                 |                               set_server_socket()                  set_server_sockaddr_ll()
                 |                                       |                                       |
                 |                                        ---------------------------------------
